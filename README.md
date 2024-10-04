@@ -7,4 +7,3 @@
 ## todos
 
 + version da pom
-+ logs su file
