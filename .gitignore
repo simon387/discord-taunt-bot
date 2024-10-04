@@ -1,2 +1,4 @@
 .idea
 secret.txt
+target
+src/main/resources/secret.properties
