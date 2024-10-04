@@ -1,7 +1,6 @@
 package it.simonecelia.discordtauntbot;
 
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -14,14 +13,10 @@ import java.util.Properties;
 public class DiscordTauntBot extends ListenerAdapter {
 
 	public static void main ( String[] args ) {
-		Properties properties = new Properties ();
+		var properties = new Properties ();
 		try {
-			// Carica il file application.properties
-			FileInputStream fis = new FileInputStream ( "src/main/resources/secret.properties" );
-			properties.load ( fis );
-
-			// Leggi il token dal file properties
-			String token = properties.getProperty ( "discord.bot.token" );
+			properties.load ( new FileInputStream ( "src/main/resources/secret.properties" ) );
+			var token = properties.getProperty ( "discord.bot.token" );
 
 			if ( token == null || token.isEmpty () ) {
 				System.out.println ( "Il token del bot non è stato trovato nel file properties." );
@@ -29,7 +24,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			}
 
 			// Crea un'istanza di JDA con gli intenti necessari
-			JDABuilder builder = JDABuilder.createDefault ( token );
+			var builder = JDABuilder.createDefault ( token );
 			builder.enableIntents ( GatewayIntent.MESSAGE_CONTENT );
 
 			// Aggiungi il listener che gestirà i messaggi
@@ -37,7 +32,6 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 			// Avvia il bot
 			builder.build ();
-
 		} catch ( IOException e ) {
 			e.printStackTrace ();
 		}
@@ -50,8 +44,8 @@ public class DiscordTauntBot extends ListenerAdapter {
 			return;
 		}
 
-		Message message = event.getMessage ();
-		String content = message.getContentRaw ();
+		var message = event.getMessage ();
+		var content = message.getContentRaw ();
 
 		// Se qualcuno scrive "!ping", rispondi con "Pong!"
 		if ( content.equals ( "!ping" ) ) {
