@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,14 +14,18 @@ import java.util.Properties;
 
 public class DiscordTauntBot extends ListenerAdapter {
 
+	private static final Logger logger = LoggerFactory.getLogger ( DiscordTauntBot.class );
+
 	public static void main ( String[] args ) {
+		logger.info ( "Starting Discord Taunt Bot" );
+
 		var properties = new Properties ();
 		try {
 			properties.load ( new FileInputStream ( "src/main/resources/secret.properties" ) );
 			var token = properties.getProperty ( "discord.bot.token" );
 
 			if ( token == null || token.isEmpty () ) {
-				System.out.println ( "Il token del bot non è stato trovato nel file properties." );
+				logger.error ( "Il token del bot non è stato trovato nel file properties." );
 				return;
 			}
 
@@ -33,7 +39,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			// Avvia il bot
 			builder.build ();
 		} catch ( IOException e ) {
-			e.printStackTrace ();
+			logger.error ( e.getMessage (), e );
 		}
 	}
 
@@ -46,6 +52,9 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 		var message = event.getMessage ();
 		var content = message.getContentRaw ();
+
+		logger.info ( "Got message from: {}", event.getAuthor () );
+		logger.info ( "Content: {}", content );
 
 		// Se qualcuno scrive "!ping", rispondi con "Pong!"
 		if ( content.equals ( "!ping" ) ) {
