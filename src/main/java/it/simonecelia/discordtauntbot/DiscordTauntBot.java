@@ -25,7 +25,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			var token = properties.getProperty ( "discord.bot.token" );
 
 			if ( token == null || token.isEmpty () ) {
-				logger.error ( "Il token del bot non è stato trovato nel file properties." );
+				logger.error ( "Token not found!" );
 				return;
 			}
 
