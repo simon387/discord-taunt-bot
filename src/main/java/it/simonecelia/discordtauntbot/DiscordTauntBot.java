@@ -72,18 +72,10 @@ public class DiscordTauntBot extends ListenerAdapter {
 		}
 
 		switch ( content ) {
-		case "/stop" -> {
-			audioPlayer.stopAudio ( event );
-		}
-		case "/tauntlist" -> {
-			textSender.sendTauntList ( event );
-		}
-		case "/links" -> {
-			textSender.sendLinks ( event );
-		}
-		case "/list" -> {
-			textSender.sendCmdList ( event );
-		}
+		case "/stop" -> audioPlayer.stopAudio ( event );
+		case "/tauntlist" -> textSender.sendTauntList ( event );
+		case "/links" -> textSender.sendLinks ( event );
+		case "/list" -> textSender.sendCmdList ( event );
 		}
 	}
 
