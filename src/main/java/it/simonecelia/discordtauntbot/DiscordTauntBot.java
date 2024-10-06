@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Objects;
@@ -22,20 +23,26 @@ import java.util.Properties;
 
 public class DiscordTauntBot extends ListenerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger ( DiscordTauntBot.class );
+	private static final Logger log = LoggerFactory.getLogger ( DiscordTauntBot.class );
 
 	private final AudioPlayerManager playerManager;
 
 	private final TrackScheduler trackScheduler;
 
+	private final String ASSETS_DIR;
+
 	public DiscordTauntBot () {
 		this.playerManager = new DefaultAudioPlayerManager ();
 		AudioSourceManagers.registerLocalSource ( playerManager );
 		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
+		//
+		var currentPath = new File ( "" ).getAbsolutePath ();
+		log.info ( "App working dir is: {}", currentPath );
+		ASSETS_DIR = currentPath + "\\assets";
 	}
 
 	public static void main ( String[] args ) {
-		logger.info ( "Starting Discord Taunt Bot" );
+		log.info ( "Starting Discord Taunt Bot" );
 
 		var properties = new Properties ();
 		try {
@@ -43,7 +50,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			var token = properties.getProperty ( "discord.bot.token" );
 
 			if ( token == null || token.isEmpty () ) {
-				logger.error ( "Token not found!" );
+				log.error ( "Token not found!" );
 				return;
 			}
 
@@ -52,36 +59,45 @@ public class DiscordTauntBot extends ListenerAdapter {
 			builder.addEventListeners ( new DiscordTauntBot () );
 			builder.build ();
 		} catch ( IOException e ) {
-			logger.error ( e.getMessage (), e );
+			log.error ( e.getMessage (), e );
 		}
 	}
 
 	@Override
 	public void onMessageReceived ( MessageReceivedEvent event ) {
-		if ( event.getAuthor ().isBot () )
+		if ( event.getAuthor ().isBot () ) {
 			return;
+		}
 
 		var message = event.getMessage ();
 		var content = message.getContentRaw ();
 
-		logger.info ( "Got message from: {}", event.getAuthor () );
-		logger.info ( "Content: {}", content );
+		log.info ( "Got message from: {}", event.getAuthor () );
+		log.info ( "Content: {}", content );
 
 		if ( content.equals ( "/ping" ) ) {
+			log.info ( "Pong!" );
 			event.getChannel ().sendMessage ( "Pong!" ).queue ();
 			return;
 		}
 
 		if ( content.startsWith ( "/play " ) ) {
+			log.info ( "Playing: {}", content );
 			var command = content.split ( " ", 2 );
 			if ( command.length == 2 ) {
-				var filePath = command[1];
-				playAudio ( event, filePath );
+				var file = ASSETS_DIR + command[1] + "mp3";
+				playAudio ( event, file );
 			}
+			return;
+		}
+
+		if ( content.startsWith ( "/list" ) ) {
+			log.info ( "Listing all commands " );
+			event.getChannel ().sendMessage ( "/ping - pong\n /play <audio file>\n /list this list" ).queue ();
 		}
 	}
 
-	private void playAudio ( MessageReceivedEvent event, String filePath ) {
+	private void playAudio ( MessageReceivedEvent event, String audioFile ) {
 		var voiceChannel = Objects.requireNonNull (
 						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
 
@@ -89,12 +105,13 @@ public class DiscordTauntBot extends ListenerAdapter {
 		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );
 		audioManager.openAudioConnection ( voiceChannel );
 
-		playerManager.loadItem ( filePath, new AudioLoadResultHandler () {
+		playerManager.loadItem ( audioFile, new AudioLoadResultHandler () {
 
 			@Override
 			public void trackLoaded ( AudioTrack track ) {
 				trackScheduler.queue ( track );
-				event.getChannel ().sendMessage ( "Riproduzione di: " + filePath ).queue ();
+				log.info ( "Riproduzione di: {}", audioFile );
+				event.getChannel ().sendMessage ( "Riproduzione di: " + audioFile ).queue ();
 			}
 
 			@Override
@@ -104,11 +121,13 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 			@Override
 			public void noMatches () {
-				event.getChannel ().sendMessage ( "File audio non trovato: " + filePath ).queue ();
+				log.error ( "File audio non trovato: {}", audioFile );
+				event.getChannel ().sendMessage ( "File audio non trovato: " + audioFile ).queue ();
 			}
 
 			@Override
 			public void loadFailed ( FriendlyException exception ) {
+				log.error ( "Errore nel caricamento del file audio: {}", exception.getMessage () );
 				event.getChannel ().sendMessage ( "Errore nel caricamento del file audio: " + exception.getMessage () ).queue ();
 			}
 		} );
