@@ -64,9 +64,9 @@ public class DiscordTauntBot extends ListenerAdapter {
 		log.info ( "Got message from: {}", event.getAuthor () );
 		log.info ( "Content: {}", content );
 
-		if ( content.startsWith ( "/p " ) ) {
+		if ( content.startsWith ( "/p " ) || content.startsWith ( "/play " ) ) {
 			log.info ( "Playing: {}", content );
-			audioPlayer.playAudio ( event, ASSETS_DIR + content.substring ( 3 ).trim () + ".mp3" );
+			playAudio ( event, content );
 			return;
 		}
 
@@ -98,6 +98,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			log.info ( "Listing all commands" );
 			var list = new StringBuilder ();
 			list.append ( "`/ping`         -->   pong!\n" );
+			list.append ( "`/play <taunt>` -->   plays taunt\n" );
 			list.append ( "`/p    <taunt>` -->   plays taunt\n" );
 			list.append ( "`/stop`         -->   stops all audios\n" );
 			list.append ( "`/tauntlist`    -->   shows taunt list\n" );
@@ -108,4 +109,8 @@ public class DiscordTauntBot extends ListenerAdapter {
 		}
 	}
 
+	private void playAudio ( MessageReceivedEvent event, String content ) {
+		var begindIndex = content.startsWith ( "/p " ) ? 3 : 6;
+		audioPlayer.playAudio ( event, ASSETS_DIR + content.substring ( begindIndex ).trim () + ".mp3" );
+	}
 }
