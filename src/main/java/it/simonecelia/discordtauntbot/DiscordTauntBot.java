@@ -8,10 +8,8 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,22 +67,25 @@ public class DiscordTauntBot extends ListenerAdapter {
 		logger.info ( "Got message from: {}", event.getAuthor () );
 		logger.info ( "Content: {}", content );
 
-		if ( content.equals ( "!ping" ) ) {
+		if ( content.equals ( "/ping" ) ) {
 			event.getChannel ().sendMessage ( "Pong!" ).queue ();
-		} else if ( content.startsWith ( "/play " ) ) {
-			String[] command = content.split ( " ", 2 );
+			return;
+		}
+
+		if ( content.startsWith ( "/play " ) ) {
+			var command = content.split ( " ", 2 );
 			if ( command.length == 2 ) {
-				String filePath = command[1];
+				var filePath = command[1];
 				playAudio ( event, filePath );
 			}
 		}
 	}
 
 	private void playAudio ( MessageReceivedEvent event, String filePath ) {
-		VoiceChannel voiceChannel = Objects.requireNonNull (
+		var voiceChannel = Objects.requireNonNull (
 						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
 
-		AudioManager audioManager = event.getGuild ().getAudioManager ();
+		var audioManager = event.getGuild ().getAudioManager ();
 		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );
 		audioManager.openAudioConnection ( voiceChannel );
 
