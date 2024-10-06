@@ -1,6 +1,7 @@
 package it.simonecelia.discordtauntbot;
 
 import it.simonecelia.discordtauntbot.audio.AudioPlayer;
+import it.simonecelia.discordtauntbot.text.TextSender;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,11 +21,13 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 	private final AudioPlayer audioPlayer;
 
+	private final TextSender textSender;
+
 	private final String ASSETS_DIR;
 
 	public DiscordTauntBot () {
 		audioPlayer = new AudioPlayer ();
-		//
+		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();
 		log.info ( "App working dir is: {}", currentPath );
 		ASSETS_DIR = currentPath + "\\assets\\";
@@ -53,7 +56,6 @@ public class DiscordTauntBot extends ListenerAdapter {
 	}
 
 	@Override
-	@SuppressWarnings ( "HttpUrlsUsage" )
 	public void onMessageReceived ( MessageReceivedEvent event ) {
 		if ( event.getAuthor ().isBot () ) {
 			return;
@@ -65,46 +67,22 @@ public class DiscordTauntBot extends ListenerAdapter {
 		log.info ( "Content: {}", content );
 
 		if ( content.startsWith ( "/p " ) || content.startsWith ( "/play " ) ) {
-			log.info ( "Playing: {}", content );
 			playAudio ( event, content );
 			return;
 		}
 
 		switch ( content ) {
-		case "/ping" -> {
-			log.info ( "Pong!" );
-			event.getChannel ().sendMessage ( "Pong!" ).queue ();
-		}
 		case "/stop" -> {
-			log.info ( "Stopping audio playback" );
 			audioPlayer.stopAudio ( event );
 		}
 		case "/tauntlist" -> {
-			log.info ( "Showing tauntlist" );
-			event.getChannel ().sendMessage ( "https://www.simonecelia.it/ts-bot-web/index.html" ).queue ();
+			textSender.sendTauntList ( event );
 		}
 		case "/links" -> {
-			log.info ( "Showing links" );
-			var list = new StringBuilder ();
-			list.append ( "https://eden.leryk.ovh/alchemy-leveling/\n" );
-			list.append ( "https://apothecary.daoc-sites.info/reference_reactives.php\n" );
-			list.append ( "https://www.darkageofcamelot.com/content/spellcraft-armor-bonuses\n" );
-			list.append ( "https://camelot.allakhazam.com/spellcraftcalc.html\n" );
-			list.append ( "http://tool.excidio.net/spelldamage.htm\n" );
-			list.append ( "https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
-			event.getChannel ().sendMessage ( list ).queue ();
+			textSender.sendLinks ( event );
 		}
 		case "/list" -> {
-			log.info ( "Listing all commands" );
-			var list = new StringBuilder ();
-			list.append ( "`/ping`         -->   pong!\n" );
-			list.append ( "`/play <taunt>` -->   plays taunt\n" );
-			list.append ( "`/p    <taunt>` -->   plays taunt\n" );
-			list.append ( "`/stop`         -->   stops all audios\n" );
-			list.append ( "`/tauntlist`    -->   shows taunt list\n" );
-			list.append ( "`/links`        -->   shows links\n" );
-			list.append ( "`/list`         -->   shows this list\n" );
-			event.getChannel ().sendMessage ( list ).queue ();
+			textSender.sendCmdList ( event );
 		}
 		}
 	}
