@@ -66,10 +66,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 		if ( content.startsWith ( "/p " ) ) {
 			log.info ( "Playing: {}", content );
-			var filePath = content.substring ( 3 ); // 6 è la lunghezza di "/p "
-			filePath = filePath.trim ();
-			var file = ASSETS_DIR + filePath + ".mp3"; // Aggiungi l'estensione ".mp3"
-			audioPlayer.playAudio ( event, file );
+			audioPlayer.playAudio ( event, ASSETS_DIR + content.substring ( 3 ).trim () + ".mp3" );
 			return;
 		}
 
