@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Objects;
 
 
@@ -36,6 +37,12 @@ public class AudioPlayer {
 		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );
 		audioManager.openAudioConnection ( voiceChannel );
 
+		// pulitura della stringa del file audio
+		var file = new File ( audioFile );
+		var fileName = file.getName ();
+		int lastDotIndex = fileName.lastIndexOf ( '.' );
+		var fileNameWithoutExtension = ( lastDotIndex == -1 ) ? fileName : fileName.substring ( 0, lastDotIndex );
+
 		playerManager.loadItem ( audioFile, new AudioLoadResultHandler () {
 
 			@Override
@@ -43,7 +50,7 @@ public class AudioPlayer {
 				trackScheduler.getPlayer ().stopTrack ();
 				trackScheduler.queue ( track );
 				log.info ( "Riproduzione di: {}", audioFile );
-				event.getChannel ().sendMessage ( "Riproduzione di: " + audioFile ).queue ();
+				event.getChannel ().sendMessage ( "Riproduzione di: " + fileNameWithoutExtension ).queue ();
 			}
 
 			@Override
@@ -54,7 +61,7 @@ public class AudioPlayer {
 			@Override
 			public void noMatches () {
 				log.error ( "File audio non trovato: {}", audioFile );
-				event.getChannel ().sendMessage ( "File audio non trovato: " + audioFile ).queue ();
+				event.getChannel ().sendMessage ( "File audio non trovato: " + fileNameWithoutExtension ).queue ();
 			}
 
 			@Override
