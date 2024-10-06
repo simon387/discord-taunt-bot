@@ -53,7 +53,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 	}
 
 	@Override
-	//	@SuppressWarnings ( "all" )
+	@SuppressWarnings ( "HttpUrlsUsage" )
 	public void onMessageReceived ( MessageReceivedEvent event ) {
 		if ( event.getAuthor ().isBot () ) {
 			return;
