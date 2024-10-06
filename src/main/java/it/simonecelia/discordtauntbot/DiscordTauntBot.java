@@ -64,9 +64,9 @@ public class DiscordTauntBot extends ListenerAdapter {
 		log.info ( "Got message from: {}", event.getAuthor () );
 		log.info ( "Content: {}", content );
 
-		if ( content.startsWith ( "/play " ) ) {
+		if ( content.startsWith ( "/p " ) ) {
 			log.info ( "Playing: {}", content );
-			var filePath = content.substring ( 6 ); // 6 è la lunghezza di "/play "
+			var filePath = content.substring ( 3 ); // 6 è la lunghezza di "/p "
 			filePath = filePath.trim ();
 			var file = ASSETS_DIR + filePath + ".mp3"; // Aggiungi l'estensione ".mp3"
 			audioPlayer.playAudio ( event, file );
@@ -101,7 +101,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			log.info ( "Listing all commands" );
 			var list = new StringBuilder ();
 			list.append ( "`/ping`         -->   pong!\n" );
-			list.append ( "`/play <taunt>` -->   plays taunt\n" );
+			list.append ( "`/p    <taunt>` -->   plays taunt\n" );
 			list.append ( "`/stop`         -->   stops all audios\n" );
 			list.append ( "`/tauntlist`    -->   shows taunt list\n" );
 			list.append ( "`/links`        -->   shows links\n" );
