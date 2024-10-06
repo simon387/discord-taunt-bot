@@ -21,90 +21,95 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
 
+
 public class DiscordTauntBot extends ListenerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(DiscordTauntBot.class);
+	private static final Logger logger = LoggerFactory.getLogger ( DiscordTauntBot.class );
+
 	private final AudioPlayerManager playerManager;
+
 	private final TrackScheduler trackScheduler;
 
-	public DiscordTauntBot() {
-		this.playerManager = new DefaultAudioPlayerManager();
-		AudioSourceManagers.registerLocalSource(playerManager);
-		this.trackScheduler = new TrackScheduler(playerManager.createPlayer());
+	public DiscordTauntBot () {
+		this.playerManager = new DefaultAudioPlayerManager ();
+		AudioSourceManagers.registerLocalSource ( playerManager );
+		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
 	}
 
-	public static void main(String[] args) {
-		logger.info("Starting Discord Taunt Bot");
+	public static void main ( String[] args ) {
+		logger.info ( "Starting Discord Taunt Bot" );
 
-		var properties = new Properties();
+		var properties = new Properties ();
 		try {
-			properties.load(new FileInputStream("src/main/resources/secret.properties"));
-			var token = properties.getProperty("discord.bot.token");
+			properties.load ( new FileInputStream ( "src/main/resources/secret.properties" ) );
+			var token = properties.getProperty ( "discord.bot.token" );
 
-			if (token == null || token.isEmpty()) {
-				logger.error("Token not found!");
+			if ( token == null || token.isEmpty () ) {
+				logger.error ( "Token not found!" );
 				return;
 			}
 
-			var builder = JDABuilder.createDefault(token);
-			builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES);
-			builder.addEventListeners(new DiscordTauntBot());
-			builder.build();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			var builder = JDABuilder.createDefault ( token );
+			builder.enableIntents ( GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES );
+			builder.addEventListeners ( new DiscordTauntBot () );
+			builder.build ();
+		} catch ( IOException e ) {
+			logger.error ( e.getMessage (), e );
 		}
 	}
 
 	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
-		if (event.getAuthor().isBot()) return;
+	public void onMessageReceived ( MessageReceivedEvent event ) {
+		if ( event.getAuthor ().isBot () )
+			return;
 
-		var message = event.getMessage();
-		var content = message.getContentRaw();
+		var message = event.getMessage ();
+		var content = message.getContentRaw ();
 
-		logger.info("Got message from: {}", event.getAuthor());
-		logger.info("Content: {}", content);
+		logger.info ( "Got message from: {}", event.getAuthor () );
+		logger.info ( "Content: {}", content );
 
-		if (content.equals("!ping")) {
-			event.getChannel().sendMessage("Pong!").queue();
-		} else if (content.startsWith("/play ")) {
-			String[] command = content.split(" ", 2);
-			if (command.length == 2) {
+		if ( content.equals ( "!ping" ) ) {
+			event.getChannel ().sendMessage ( "Pong!" ).queue ();
+		} else if ( content.startsWith ( "/play " ) ) {
+			String[] command = content.split ( " ", 2 );
+			if ( command.length == 2 ) {
 				String filePath = command[1];
-				playAudio(event, filePath);
+				playAudio ( event, filePath );
 			}
 		}
 	}
 
-	private void playAudio(MessageReceivedEvent event, String filePath) {
+	private void playAudio ( MessageReceivedEvent event, String filePath ) {
 		VoiceChannel voiceChannel = Objects.requireNonNull (
-						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel();
+						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
 
-		AudioManager audioManager = event.getGuild().getAudioManager();
-		audioManager.setSendingHandler(new AudioPlayerSendHandler(trackScheduler.getPlayer()));
-		audioManager.openAudioConnection(voiceChannel);
+		AudioManager audioManager = event.getGuild ().getAudioManager ();
+		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );
+		audioManager.openAudioConnection ( voiceChannel );
 
-		playerManager.loadItem(filePath, new AudioLoadResultHandler() {
+		playerManager.loadItem ( filePath, new AudioLoadResultHandler () {
+
 			@Override
-			public void trackLoaded(AudioTrack track) {
-				trackScheduler.queue(track);
-				event.getChannel().sendMessage("Riproduzione di: " + filePath).queue();
+			public void trackLoaded ( AudioTrack track ) {
+				trackScheduler.queue ( track );
+				event.getChannel ().sendMessage ( "Riproduzione di: " + filePath ).queue ();
 			}
 
 			@Override
-			public void playlistLoaded(AudioPlaylist playlist) {
+			public void playlistLoaded ( AudioPlaylist playlist ) {
 				// Non gestito per semplicità
 			}
 
 			@Override
-			public void noMatches() {
-				event.getChannel().sendMessage("File audio non trovato: " + filePath).queue();
+			public void noMatches () {
+				event.getChannel ().sendMessage ( "File audio non trovato: " + filePath ).queue ();
 			}
 
 			@Override
-			public void loadFailed(FriendlyException exception) {
-				event.getChannel().sendMessage("Errore nel caricamento del file audio: " + exception.getMessage()).queue();
+			public void loadFailed ( FriendlyException exception ) {
+				event.getChannel ().sendMessage ( "Errore nel caricamento del file audio: " + exception.getMessage () ).queue ();
 			}
-		});
+		} );
 	}
 }
