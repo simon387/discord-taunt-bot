@@ -30,6 +30,7 @@ public class AudioPlayer {
 	}
 
 	public void playAudio ( MessageReceivedEvent event, String audioFile ) {
+		log.info ( "Playing: {}", audioFile );
 		var voiceChannel = Objects.requireNonNull (
 						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
 
@@ -73,6 +74,7 @@ public class AudioPlayer {
 	}
 
 	public void stopAudio ( MessageReceivedEvent event ) {
+		log.info ( "Stopping audio playback" );
 		// Ferma la riproduzione del brano corrente
 		trackScheduler.getPlayer ().stopTrack ();
 
