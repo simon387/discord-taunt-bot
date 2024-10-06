@@ -38,7 +38,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		//
 		var currentPath = new File ( "" ).getAbsolutePath ();
 		log.info ( "App working dir is: {}", currentPath );
-		ASSETS_DIR = currentPath + "\\assets";
+		ASSETS_DIR = currentPath + "\\assets\\";
 	}
 
 	public static void main ( String[] args ) {
@@ -83,11 +83,10 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 		if ( content.startsWith ( "/play " ) ) {
 			log.info ( "Playing: {}", content );
-			var command = content.split ( " ", 2 );
-			if ( command.length == 2 ) {
-				var file = ASSETS_DIR + command[1] + "mp3";
-				playAudio ( event, file );
-			}
+			var filePath = content.substring ( 6 ); // 6 è la lunghezza di "/play "
+			filePath = filePath.trim ();
+			var file = ASSETS_DIR + filePath + ".mp3"; // Aggiungi l'estensione ".mp3"
+			playAudio ( event, file );
 			return;
 		}
 
