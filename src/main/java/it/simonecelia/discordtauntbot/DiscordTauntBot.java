@@ -53,22 +53,16 @@ public class DiscordTauntBot extends ListenerAdapter {
 	}
 
 	@Override
+	//	@SuppressWarnings ( "all" )
 	public void onMessageReceived ( MessageReceivedEvent event ) {
 		if ( event.getAuthor ().isBot () ) {
 			return;
 		}
-
 		var message = event.getMessage ();
 		var content = message.getContentRaw ().trim ();
 
 		log.info ( "Got message from: {}", event.getAuthor () );
 		log.info ( "Content: {}", content );
-
-		if ( content.equals ( "/ping" ) ) {
-			log.info ( "Pong!" );
-			event.getChannel ().sendMessage ( "Pong!" ).queue ();
-			return;
-		}
 
 		if ( content.startsWith ( "/play " ) ) {
 			log.info ( "Playing: {}", content );
@@ -79,19 +73,20 @@ public class DiscordTauntBot extends ListenerAdapter {
 			return;
 		}
 
-		if ( content.equals ( "/stop" ) ) {
+		switch ( content ) {
+		case "/ping" -> {
+			log.info ( "Pong!" );
+			event.getChannel ().sendMessage ( "Pong!" ).queue ();
+		}
+		case "/stop" -> {
 			log.info ( "Stopping audio playback" );
 			audioPlayer.stopAudio ( event );
-			return;
 		}
-
-		if ( content.equals ( "/tauntlist" ) ) {
+		case "/tauntlist" -> {
 			log.info ( "Showing tauntlist" );
 			event.getChannel ().sendMessage ( "https://www.simonecelia.it/ts-bot-web/index.html" ).queue ();
-			return;
 		}
-
-		if ( content.equals ( "/links" ) ) {
+		case "/links" -> {
 			log.info ( "Showing links" );
 			var list = new StringBuilder ();
 			list.append ( "https://eden.leryk.ovh/alchemy-leveling/\n" );
@@ -102,9 +97,8 @@ public class DiscordTauntBot extends ListenerAdapter {
 			list.append ( "https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
 			event.getChannel ().sendMessage ( list ).queue ();
 		}
-
-		if ( content.startsWith ( "/list" ) ) {
-			log.info ( "Listing all commands " );
+		case "/list" -> {
+			log.info ( "Listing all commands" );
 			var list = new StringBuilder ();
 			list.append ( "`/ping`         -->   pong!\n" );
 			list.append ( "`/play <taunt>` -->   plays taunt\n" );
@@ -113,6 +107,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 			list.append ( "`/links`        -->   shows links\n" );
 			list.append ( "`/list`         -->   shows this list\n" );
 			event.getChannel ().sendMessage ( list ).queue ();
+		}
 		}
 	}
 
