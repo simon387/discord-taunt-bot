@@ -40,6 +40,7 @@ public class AudioPlayer {
 
 			@Override
 			public void trackLoaded ( AudioTrack track ) {
+				trackScheduler.getPlayer ().stopTrack ();
 				trackScheduler.queue ( track );
 				log.info ( "Riproduzione di: {}", audioFile );
 				event.getChannel ().sendMessage ( "Riproduzione di: " + audioFile ).queue ();
