@@ -41,7 +41,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.4.12</version>
 		</dependency>
-
+		<!-- per gli stream audio -->
 		<dependency>
 			<groupId>com.sedmelluq</groupId>
 			<artifactId>lavaplayer</artifactId>

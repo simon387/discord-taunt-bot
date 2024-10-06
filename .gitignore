@@ -3,3 +3,4 @@ secret.txt
 target
 src/main/resources/secret.properties
 logs
+assets
