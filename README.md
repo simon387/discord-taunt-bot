@@ -6,4 +6,4 @@
 
 ## todos
 
-+ version da pom
++ /version
