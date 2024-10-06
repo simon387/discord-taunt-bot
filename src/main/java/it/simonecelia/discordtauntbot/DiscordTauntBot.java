@@ -85,9 +85,15 @@ public class DiscordTauntBot extends ListenerAdapter {
 			return;
 		}
 
+		if ( content.equals ( "/tauntlist" ) ) {
+			log.info ( "Showing tauntlist" );
+			event.getChannel ().sendMessage ( "https://www.simonecelia.it/ts-bot-web/index.html" ).queue ();
+			return;
+		}
+
 		if ( content.startsWith ( "/list" ) ) {
 			log.info ( "Listing all commands " );
-			event.getChannel ().sendMessage ( "/ping - pong\n /play <audio file>\n /stop\n /list this list" ).queue ();
+			event.getChannel ().sendMessage ( "/ping - pong\n /play <audio file>\n /stop\n /tauntlist\n /list this list" ).queue ();
 		}
 	}
 
