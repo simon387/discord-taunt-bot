@@ -59,7 +59,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		}
 
 		var message = event.getMessage ();
-		var content = message.getContentRaw ();
+		var content = message.getContentRaw ().trim ();
 
 		log.info ( "Got message from: {}", event.getAuthor () );
 		log.info ( "Content: {}", content );
@@ -91,9 +91,28 @@ public class DiscordTauntBot extends ListenerAdapter {
 			return;
 		}
 
+		if ( content.equals ( "/links" ) ) {
+			log.info ( "Showing links" );
+			var list = new StringBuilder ();
+			list.append ( "https://eden.leryk.ovh/alchemy-leveling/\n" );
+			list.append ( "https://apothecary.daoc-sites.info/reference_reactives.php\n" );
+			list.append ( "https://www.darkageofcamelot.com/content/spellcraft-armor-bonuses\n" );
+			list.append ( "https://camelot.allakhazam.com/spellcraftcalc.html\n" );
+			list.append ( "http://tool.excidio.net/spelldamage.htm\n" );
+			list.append ( "https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
+			event.getChannel ().sendMessage ( list ).queue ();
+		}
+
 		if ( content.startsWith ( "/list" ) ) {
 			log.info ( "Listing all commands " );
-			event.getChannel ().sendMessage ( "/ping - pong\n /play <audio file>\n /stop\n /tauntlist\n /list this list" ).queue ();
+			var list = new StringBuilder ();
+			list.append ( "`/ping`         -->   pong!\n" );
+			list.append ( "`/play <taunt>` -->   plays taunt\n" );
+			list.append ( "`/stop`         -->   stops all audios\n" );
+			list.append ( "`/tauntlist`    -->   shows taunt list\n" );
+			list.append ( "`/links`        -->   shows links\n" );
+			list.append ( "`/list`         -->   shows this list\n" );
+			event.getChannel ().sendMessage ( list ).queue ();
 		}
 	}
 
