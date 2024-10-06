@@ -90,9 +90,15 @@ public class DiscordTauntBot extends ListenerAdapter {
 			return;
 		}
 
+		if ( content.equals ( "/stop" ) ) {
+			log.info ( "Stopping audio playback" );
+			stopAudio ( event );
+			return;
+		}
+
 		if ( content.startsWith ( "/list" ) ) {
 			log.info ( "Listing all commands " );
-			event.getChannel ().sendMessage ( "/ping - pong\n /play <audio file>\n /list this list" ).queue ();
+			event.getChannel ().sendMessage ( "/ping - pong\n /play <audio file>\n /stop\n /list this list" ).queue ();
 		}
 	}
 
@@ -131,4 +137,19 @@ public class DiscordTauntBot extends ListenerAdapter {
 			}
 		} );
 	}
+
+	private void stopAudio ( MessageReceivedEvent event ) {
+		// Ferma la riproduzione del brano corrente
+		trackScheduler.getPlayer ().stopTrack ();
+
+		// Ottieni il canale vocale e chiudi la connessione audio
+		var audioManager = event.getGuild ().getAudioManager ();
+		if ( audioManager.isConnected () ) {
+			audioManager.closeAudioConnection ();
+		}
+
+		// Invia un messaggio di conferma
+		event.getChannel ().sendMessage ( "Audio fermato." ).queue ();
+	}
+
 }
