@@ -23,14 +23,11 @@ public class DiscordTauntBot extends ListenerAdapter {
 
 	private final TextSender textSender;
 
-	private final String ASSETS_DIR;
-
 	public DiscordTauntBot () {
-		audioPlayer = new AudioPlayer ();
 		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();
 		log.info ( "App working dir is: {}", currentPath );
-		ASSETS_DIR = currentPath + File.separator + "assets" + File.separator;
+		audioPlayer = new AudioPlayer ( currentPath + File.separator + "assets" + File.separator );
 	}
 
 	public static void main ( String[] args ) {
@@ -67,7 +64,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		log.info ( "Content: {}", content );
 
 		if ( content.startsWith ( "/p " ) || content.startsWith ( "/play " ) ) {
-			playAudio ( event, content );
+			audioPlayer.playAudio ( event, content );
 			return;
 		}
 
@@ -79,8 +76,4 @@ public class DiscordTauntBot extends ListenerAdapter {
 		}
 	}
 
-	private void playAudio ( MessageReceivedEvent event, String content ) {
-		var begindIndex = content.startsWith ( "/p " ) ? 3 : 6;
-		audioPlayer.playAudio ( event, ASSETS_DIR + content.substring ( begindIndex ).trim () + ".mp3" );
-	}
 }
