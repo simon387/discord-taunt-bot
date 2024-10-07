@@ -23,14 +23,20 @@ public class AudioPlayer {
 
 	private final TrackScheduler trackScheduler;
 
-	public AudioPlayer () {
+	private final String ASSETS_DIR;
+
+	public AudioPlayer ( String assetsDir ) {
+		this.ASSETS_DIR = assetsDir;
 		this.playerManager = new DefaultAudioPlayerManager ();
 		AudioSourceManagers.registerLocalSource ( playerManager );
 		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
 	}
 
-	public void playAudio ( MessageReceivedEvent event, String audioFile ) {
+	public void playAudio ( MessageReceivedEvent event, String content ) {
+		var begindIndex = content.startsWith ( "/p " ) ? 3 : 6;
+		var audioFile = ASSETS_DIR + content.substring ( begindIndex ).trim () + ".mp3";
 		log.info ( "Playing: {}", audioFile );
+
 		var voiceChannel = Objects.requireNonNull (
 						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
 
