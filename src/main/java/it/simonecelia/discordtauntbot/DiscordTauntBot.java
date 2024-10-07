@@ -30,7 +30,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();
 		log.info ( "App working dir is: {}", currentPath );
-		ASSETS_DIR = currentPath + "\\assets\\";
+		ASSETS_DIR = currentPath + System.lineSeparator () + "assets" + System.lineSeparator ();
 	}
 
 	public static void main ( String[] args ) {
