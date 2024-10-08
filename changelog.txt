@@ -1,3 +1,6 @@
+Version 1.1.4
+- code opt
+
 Version 1.1.3
 - removed wrong comment
 - updated .gitignore
