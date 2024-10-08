@@ -4,3 +4,4 @@ target
 src/main/resources/secret.properties
 logs
 assets
+dependency-reduced-pom.xml

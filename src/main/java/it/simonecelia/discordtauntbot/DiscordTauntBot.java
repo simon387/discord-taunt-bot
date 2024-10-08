@@ -70,9 +70,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		}
 		var message = event.getMessage ();
 		var content = message.getContentRaw ().trim ();
-
-		log.info ( "Got message from: {}", event.getAuthor () );
-		log.info ( "Content: {}", content );
+		log.info ( "Got message from: {}, with Content: {}", event.getAuthor (), content );
 
 		if ( content.startsWith ( "/p " ) || content.startsWith ( "/play " ) ) {
 			audioPlayer.playAudio ( event, content, this.verbose );
@@ -101,7 +99,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 	}
 
 	private boolean isAdmin ( MessageReceivedEvent event ) {
-		log.info ( "Author {} is admin!", event.getAuthor () );
+		log.info ( "Checking if Author {} is admin", event.getAuthor () );
 		return event.getAuthor ().getId ().equals ( adminID );
 	}
 

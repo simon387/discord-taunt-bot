@@ -44,7 +44,6 @@ public class AudioPlayer {
 		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );
 		audioManager.openAudioConnection ( voiceChannel );
 
-		// pulitura della stringa del file audio
 		var file = new File ( audioFile );
 		var fileName = file.getName ();
 		int lastDotIndex = fileName.lastIndexOf ( '.' );
@@ -56,9 +55,9 @@ public class AudioPlayer {
 			public void trackLoaded ( AudioTrack track ) {
 				trackScheduler.getPlayer ().stopTrack ();
 				trackScheduler.queue ( track );
-				log.info ( "Riproduzione di: {}", audioFile );
+				log.info ( "Playing: {}", audioFile );
 				if ( verbose ) {
-					event.getChannel ().sendMessage ( "Riproduzione di: " + fileNameWithoutExtension ).queue ();
+					event.getChannel ().sendMessage ( "Playing: " + fileNameWithoutExtension ).queue ();
 				}
 			}
 
@@ -69,31 +68,29 @@ public class AudioPlayer {
 
 			@Override
 			public void noMatches () {
-				log.error ( "File audio non trovato: {}", audioFile );
-				event.getChannel ().sendMessage ( "File audio non trovato: " + fileNameWithoutExtension ).queue ();
+				log.error ( "Audio file not found: {}", audioFile );
+				event.getChannel ().sendMessage ( "Audio file not found: " + fileNameWithoutExtension ).queue ();
 			}
 
 			@Override
 			public void loadFailed ( FriendlyException exception ) {
-				log.error ( "Errore nel caricamento del file audio: {}", exception.getMessage () );
-				event.getChannel ().sendMessage ( "Errore nel caricamento del file audio: " + exception.getMessage () ).queue ();
+				log.error ( "Error on loading audio file: {}", exception.getMessage () );
+				event.getChannel ().sendMessage ( "Error on loading audio file: " + exception.getMessage () ).queue ();
 			}
 		} );
 	}
 
 	public void stopAudio ( MessageReceivedEvent event, boolean verbose ) {
 		log.info ( "Stopping audio playback" );
-		// Ferma la riproduzione del brano corrente
-		trackScheduler.getPlayer ().stopTrack ();
+		trackScheduler.getPlayer ().stopTrack ();  // Ferma la riproduzione del brano corrente
 
-		// Ottieni il canale vocale e chiudi la connessione audio
-		var audioManager = event.getGuild ().getAudioManager ();
+		var audioManager = event.getGuild ().getAudioManager ();  // Ottieni il canale vocale e chiudi la connessione audio
 		if ( audioManager.isConnected () ) {
 			audioManager.closeAudioConnection ();
 		}
 
 		if ( verbose ) {
-			event.getChannel ().sendMessage ( "Audio fermato." ).queue ();
+			event.getChannel ().sendMessage ( "Audio stopped." ).queue ();
 		}
 	}
 }

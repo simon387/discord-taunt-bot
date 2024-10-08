@@ -30,15 +30,15 @@ public class TextSender {
 	public void sendCmdList ( MessageReceivedEvent event ) {
 		log.info ( "Listing all commands" );
 		var list = new StringBuilder ();
-		list.append ( "`/play <taunt>` -->   plays taunt\n" );
-		list.append ( "`/p    <taunt>` -->   plays taunt\n" );
-		list.append ( "`/stop`         -->   stops all audios\n" );
-		list.append ( "`/tauntlist`    -->   shows taunt list\n" );
-		list.append ( "`/links`        -->   shows links\n" );
-		list.append ( "`/list`         -->   shows this list\n" );
-		list.append ( "`/version`      -->   shows version infos\n" );
-		list.append ( "`/verbose`      -->   switch verbose flag on/off (only admins)\n" );
-		list.append ( "`/kill`         -->   kills the bot (only admins)\n" );
+		list.append ( "`/play <taunt>  -->   plays taunt`\n" );
+		list.append ( "`/p    <taunt>  -->   plays taunt`\n" );
+		list.append ( "`/stop          -->   stops all audios`\n" );
+		list.append ( "`/tauntlist     -->   shows taunt list`\n" );
+		list.append ( "`/links         -->   shows links`\n" );
+		list.append ( "`/list          -->   shows this list`\n" );
+		list.append ( "`/version       -->   shows version infos`\n" );
+		list.append ( "`/verbose       -->   switch verbose flag on/off (only admins)`\n" );
+		list.append ( "`/kill          -->   kills the bot (only admins)`\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 
