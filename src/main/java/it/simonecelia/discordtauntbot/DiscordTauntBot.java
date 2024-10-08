@@ -72,12 +72,10 @@ public class DiscordTauntBot extends ListenerAdapter {
 		var content = message.getContentRaw ().trim ();
 		log.info ( "Got message from: {}, with Content: {}", event.getAuthor (), content );
 
-		if ( content.startsWith ( "/p " ) || content.startsWith ( "/play " ) ) {
-			audioPlayer.playAudio ( event, content, this.verbose );
-			return;
-		}
-
 		switch ( content ) {
+		case String c when c.startsWith ( "/p " ) || c.startsWith ( "/play " ) -> {
+			audioPlayer.playAudio ( event, content, this.verbose );
+		}
 		case "/stop" -> audioPlayer.stopAudio ( event, this.verbose );
 		case "/tauntlist" -> textSender.sendTauntList ( event );
 		case "/links" -> textSender.sendLinks ( event );
@@ -94,6 +92,8 @@ public class DiscordTauntBot extends ListenerAdapter {
 			if ( isAdmin ( event ) ) {
 				System.exit ( 0 );
 			}
+		}
+		default -> {
 		}
 		}
 	}
