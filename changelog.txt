@@ -1,3 +1,6 @@
+Version 1.1.2
+- fix a typo
+
 Version 1.1.1
 - updated cmd list
 
