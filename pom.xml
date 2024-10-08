@@ -60,7 +60,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>it.simonecelia.discordtauntbot.DiscordTauntBot</mainClass> <!-- Cambia con il percorso della tua classe principale -->
+							<mainClass>it.simonecelia.discordtauntbot.DiscordTauntBotApp</mainClass> <!-- Cambia con il percorso della tua classe principale -->
 						</manifest>
 					</archive>
 				</configuration>
