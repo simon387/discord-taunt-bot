@@ -36,6 +36,12 @@ public class TextSender {
 		list.append ( "`/tauntlist`    -->   shows taunt list\n" );
 		list.append ( "`/links`        -->   shows links\n" );
 		list.append ( "`/list`         -->   shows this list\n" );
+		list.append ( "`/version`      -->   shows version infos\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
+	}
+
+	public void sendVersion ( MessageReceivedEvent event ) {
+		log.info ( "Showing version" );
+		event.getChannel ().sendMessage ( "https://github.com/simon387/discord-taunt-bot/blob/master/changelog.txt" ).queue ();
 	}
 }
