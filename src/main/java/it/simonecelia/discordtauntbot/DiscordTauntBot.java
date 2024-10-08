@@ -91,6 +91,11 @@ public class DiscordTauntBot extends ListenerAdapter {
 				event.getChannel ().sendMessage ( "Verbose enabled:" + this.verbose ).queue ();
 			}
 		}
+		case "/kill" -> {
+			if ( isAdmin ( event ) ) {
+				System.exit ( 0 );
+			}
+		}
 		}
 	}
 
