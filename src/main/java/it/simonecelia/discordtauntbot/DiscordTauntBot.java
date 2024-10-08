@@ -73,9 +73,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		log.info ( "Got message from: {}, with Content: {}", event.getAuthor (), content );
 
 		switch ( content ) {
-		case String c when c.startsWith ( "/p " ) || c.startsWith ( "/play " ) -> {
-			audioPlayer.playAudio ( event, content, this.verbose );
-		}
+		case String c when c.startsWith ( "/p " ) || c.startsWith ( "/play " ) -> audioPlayer.playAudio ( event, content, this.verbose );
 		case "/stop" -> audioPlayer.stopAudio ( event, this.verbose );
 		case "/tauntlist" -> textSender.sendTauntList ( event );
 		case "/links" -> textSender.sendLinks ( event );
