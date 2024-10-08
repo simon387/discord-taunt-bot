@@ -38,7 +38,7 @@ public class TextSender {
 		list.append ( "`/list`         -->   shows this list\n" );
 		list.append ( "`/version`      -->   shows version infos\n" );
 		list.append ( "`/verbose`      -->   switch verbose flag on/off (only admins)\n" );
-		list.append ( "`/kill`         -->   kills the bot (only admins\n" );
+		list.append ( "`/kill`         -->   kills the bot (only admins)\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 
