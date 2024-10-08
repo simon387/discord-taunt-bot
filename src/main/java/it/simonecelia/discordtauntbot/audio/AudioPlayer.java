@@ -32,7 +32,7 @@ public class AudioPlayer {
 		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
 	}
 
-	public void playAudio ( MessageReceivedEvent event, String content ) {
+	public void playAudio ( MessageReceivedEvent event, String content, boolean verbose ) {
 		var begindIndex = content.startsWith ( "/p " ) ? 3 : 6;
 		var audioFile = ASSETS_DIR + content.substring ( begindIndex ).trim () + ".mp3";
 		log.info ( "Playing: {}", audioFile );
@@ -57,7 +57,9 @@ public class AudioPlayer {
 				trackScheduler.getPlayer ().stopTrack ();
 				trackScheduler.queue ( track );
 				log.info ( "Riproduzione di: {}", audioFile );
-				event.getChannel ().sendMessage ( "Riproduzione di: " + fileNameWithoutExtension ).queue ();
+				if ( verbose ) {
+					event.getChannel ().sendMessage ( "Riproduzione di: " + fileNameWithoutExtension ).queue ();
+				}
 			}
 
 			@Override
@@ -79,7 +81,7 @@ public class AudioPlayer {
 		} );
 	}
 
-	public void stopAudio ( MessageReceivedEvent event ) {
+	public void stopAudio ( MessageReceivedEvent event, boolean verbose ) {
 		log.info ( "Stopping audio playback" );
 		// Ferma la riproduzione del brano corrente
 		trackScheduler.getPlayer ().stopTrack ();
@@ -90,7 +92,8 @@ public class AudioPlayer {
 			audioManager.closeAudioConnection ();
 		}
 
-		// Invia un messaggio di conferma
-		event.getChannel ().sendMessage ( "Audio fermato." ).queue ();
+		if ( verbose ) {
+			event.getChannel ().sendMessage ( "Audio fermato." ).queue ();
+		}
 	}
 }
