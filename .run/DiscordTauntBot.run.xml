@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="DiscordTauntBot" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="it.simonecelia.discordtauntbot.DiscordTauntBot" />
+    <option name="MAIN_CLASS_NAME" value="it.simonecelia.discordtauntbot.business.DiscordTauntBot" />
     <module name="discord-taunt-bot" />
     <extension name="coverage">
       <pattern>
