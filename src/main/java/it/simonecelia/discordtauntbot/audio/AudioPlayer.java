@@ -25,8 +25,8 @@ public class AudioPlayer {
 
 	private final String ASSETS_DIR;
 
-	public AudioPlayer ( String assetsDir ) {
-		this.ASSETS_DIR = assetsDir;
+	public AudioPlayer ( String currentPath ) {
+		this.ASSETS_DIR = currentPath + File.separator + "assets" + File.separator;
 		this.playerManager = new DefaultAudioPlayerManager ();
 		AudioSourceManagers.registerLocalSource ( playerManager );
 		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
