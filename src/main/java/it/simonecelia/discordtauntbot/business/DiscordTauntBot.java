@@ -26,7 +26,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();
 		log.info ( "App working dir is: {}", currentPath );
-		audioPlayer = new AudioPlayer ( currentPath + File.separator + "assets" + File.separator );
+		audioPlayer = new AudioPlayer ( currentPath );
 		this.adminID = adminID;
 		log.info ( "Admin ID is: {}", this.adminID );
 		this.verbose = verbose;
@@ -50,14 +50,14 @@ public class DiscordTauntBot extends ListenerAdapter {
 		case "/list" -> textSender.sendCmdList ( event );
 		case "/version" -> textSender.sendVersion ( event );
 		case "/verbose" -> {
-			if ( isAdmin ( event ) ) {
+			if ( isFromAdmin ( event ) ) {
 				this.verbose = !this.verbose;
 				log.info ( "Verbose enabled: {}", this.verbose );
 				event.getChannel ().sendMessage ( "Verbose enabled:" + this.verbose ).queue ();
 			}
 		}
 		case "/kill" -> {
-			if ( isAdmin ( event ) ) {
+			if ( isFromAdmin ( event ) ) {
 				System.exit ( 0 );
 			}
 		}
@@ -66,7 +66,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		}
 	}
 
-	private boolean isAdmin ( MessageReceivedEvent event ) {
+	private boolean isFromAdmin ( MessageReceivedEvent event ) {
 		log.info ( "Checking if Author {} is admin", event.getAuthor () );
 		return event.getAuthor ().getId ().equals ( adminID );
 	}
