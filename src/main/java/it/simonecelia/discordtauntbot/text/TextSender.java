@@ -1,5 +1,6 @@
 package it.simonecelia.discordtauntbot.text;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,5 +46,21 @@ public class TextSender {
 	public void sendVersion ( MessageReceivedEvent event ) {
 		log.info ( "Showing version" );
 		event.getChannel ().sendMessage ( "https://github.com/simon387/discord-taunt-bot/blob/master/changelog.txt" ).queue ();
+	}
+
+	public void sendKotHAlert ( String guildID, String channelID, JDA jda ) {
+		log.info ( "Showing KoTH alert,  guiildId = {}, channelId = {}", guildID, channelID );
+		var guild = jda.getGuildById ( guildID );
+		if ( guild != null ) {
+			var textChannel = guild.getTextChannelById ( channelID );
+			if ( textChannel != null ) {
+				textChannel.sendMessage ( "KoTH event has started!" ).queue (); // queue() is asynchronous, so it doesn't block the flow
+				log.info ( "Text send to channel: {}", textChannel.getName () );
+			} else {
+				log.error ( "Channel not found, ID: {}", channelID );
+			}
+		} else {
+			log.error ( "Guild not found, ID: {}", guildID );
+		}
 	}
 }
