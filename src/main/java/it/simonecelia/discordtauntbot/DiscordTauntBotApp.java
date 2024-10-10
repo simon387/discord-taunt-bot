@@ -44,7 +44,7 @@ public final class DiscordTauntBotApp {
 			var jda = jdaBuilder.build ();
 
 			try {
-				jda.awaitReady (); // Blocco fino a che JDA è pronto
+				jda.awaitReady (); // Blocking until JDA is ready
 				log.info ( "Bot connected" );
 				discordTauntBot.setSchedulerAndJDA ( jda );
 			} catch ( InterruptedException e ) {
