@@ -24,17 +24,15 @@ public class KoTHScheduler {
 
 	private final DTBInput input;
 
-	private final JDA jda;
-
 	public KoTHScheduler ( TextSender textSender, DTBInput input, JDA jda ) {
 		this.textSender = textSender;
 		this.input = input;
-		this.jda = jda;
+		this.input.setJda ( jda );
 		log.info ( "Current time is: {}", LocalTime.now () );
 		this.scheduler = newScheduledThreadPool ( 1 );
 		scheduleTaskAt ( LocalTime.of ( 1, 0 ) );  // Schedule the task to trigger at a specific time
-		scheduleTaskAt ( LocalTime.of ( 1, 31 ) );
 		scheduleTaskAt ( LocalTime.of ( 17, 0 ) ); // E.g., Trigger the task at 17:00 (5:00 PM)
+		//TODO add other koth times
 	}
 
 	public void shutdown () {
@@ -53,6 +51,6 @@ public class KoTHScheduler {
 
 	private void triggeredTask () {  // The task to be triggered
 		log.info ( "Triggered task at scheduled time: {}", LocalTime.now () );
-		textSender.sendKotHAlert ( input.getGuildID (), input.getChannelID (), jda );
+		textSender.sendKotHAlert ( input );
 	}
 }

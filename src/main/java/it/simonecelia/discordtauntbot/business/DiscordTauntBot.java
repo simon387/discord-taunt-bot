@@ -28,8 +28,8 @@ public class DiscordTauntBot extends ListenerAdapter {
 		this.input = input;
 		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();
-		log.info ( "App working dir is: {}", currentPath );
 		audioPlayer = new AudioPlayer ( currentPath );
+		log.info ( "App working dir is: {}", currentPath );
 		log.info ( "Admin ID is: {}", input.getAdminID () );
 		log.info ( "Verbose is: {}", input.isVerbose () );
 	}
