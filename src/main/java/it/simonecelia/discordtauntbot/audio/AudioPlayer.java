@@ -63,7 +63,7 @@ public class AudioPlayer {
 
 			@Override
 			public void playlistLoaded ( AudioPlaylist playlist ) {
-				// Non gestito per semplicità
+				// Not handled for simplicity
 			}
 
 			@Override
@@ -82,9 +82,9 @@ public class AudioPlayer {
 
 	public void stopAudio ( MessageReceivedEvent event, boolean verbose ) {
 		log.info ( "Stopping audio playback" );
-		trackScheduler.getPlayer ().stopTrack ();  // Ferma la riproduzione del brano corrente
+		trackScheduler.getPlayer ().stopTrack ();  // Stop the current track
 
-		var audioManager = event.getGuild ().getAudioManager ();  // Ottieni il canale vocale e chiudi la connessione audio
+		var audioManager = event.getGuild ().getAudioManager ();  // Get the voice channel and close the audio connection
 		if ( audioManager.isConnected () ) {
 			audioManager.closeAudioConnection ();
 		}

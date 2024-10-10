@@ -1,5 +1,6 @@
 package it.simonecelia.discordtauntbot;
 
+import it.simonecelia.discordtauntbot.business.DTBInput;
 import it.simonecelia.discordtauntbot.business.DiscordTauntBot;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -30,13 +31,25 @@ public final class DiscordTauntBotApp {
 				return;
 			}
 			properties.load ( new FileInputStream ( RESOURCES_DIR + "application.properties" ) );
-			var adminID = properties.getProperty ( "admin.id" );
-			var verbose = Boolean.parseBoolean ( properties.getProperty ( "verbose" ) );
+			var dtbInput = new DTBInput ();
+			dtbInput.setAdminID ( properties.getProperty ( "admin.id" ) );
+			dtbInput.setVerbose ( Boolean.parseBoolean ( properties.getProperty ( "verbose", "false" ) ) );
+			dtbInput.setGuildID ( properties.getProperty ( "guild.id" ) );
+			dtbInput.setChannelID ( properties.getProperty ( "channel.id" ) );
 
-			var builder = JDABuilder.createDefault ( token );
-			builder.enableIntents ( GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES );
-			builder.addEventListeners ( new DiscordTauntBot ( adminID, verbose ) );
-			builder.build ();
+			var jdaBuilder = JDABuilder.createDefault ( token );
+			jdaBuilder.enableIntents ( GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES );
+			var discordTauntBot = new DiscordTauntBot ( dtbInput );
+			jdaBuilder.addEventListeners ( discordTauntBot );
+			var jda = jdaBuilder.build ();
+
+			try {
+				jda.awaitReady (); // Blocco fino a che JDA è pronto
+				log.info ( "Bot connected" );
+				discordTauntBot.setSchedulerAndJDA ( jda );
+			} catch ( InterruptedException e ) {
+				log.error ( "Error on loading the bot!" );
+			}
 		} catch ( IOException e ) {
 			log.error ( e.getMessage (), e );
 		}
