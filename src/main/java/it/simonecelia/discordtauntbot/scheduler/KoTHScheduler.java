@@ -35,6 +35,7 @@ public class KoTHScheduler {
 		scheduleTaskAt ( LocalTime.of ( 8, 0 ) );
 		scheduleTaskAt ( LocalTime.of ( 17, 0 ) );
 		scheduleTaskAt ( LocalTime.of ( 21, 0 ) );
+		scheduleTaskAt ( LocalTime.of ( 23, 0 ) );
 		//TODO add other koth times
 	}
 
