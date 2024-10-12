@@ -33,6 +33,7 @@ public class KoTHScheduler {
 		scheduleTaskAt ( LocalTime.of ( 1, 0 ) );  // Schedule the task to trigger at a specific time
 		scheduleTaskAt ( LocalTime.of ( 5, 0 ) );  // E.g., Trigger the task at 17:00 (5:00 PM)
 		scheduleTaskAt ( LocalTime.of ( 8, 0 ) );
+		scheduleTaskAt ( LocalTime.of ( 13, 0 ) );
 		scheduleTaskAt ( LocalTime.of ( 17, 0 ) );
 		scheduleTaskAt ( LocalTime.of ( 21, 0 ) );
 		scheduleTaskAt ( LocalTime.of ( 23, 0 ) );
