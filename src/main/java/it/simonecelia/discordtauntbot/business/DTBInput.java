@@ -17,6 +17,8 @@ public class DTBInput implements Serializable {
 
 	private String channelID;
 
+	private String voiceChannelID;
+
 	private String guildID;
 
 	private JDA jda;
@@ -43,6 +45,14 @@ public class DTBInput implements Serializable {
 
 	public void setChannelID ( String channelID ) {
 		this.channelID = channelID;
+	}
+
+	public String getVoiceChannelID () {
+		return voiceChannelID;
+	}
+
+	public void setVoiceChannelID ( String voiceChannelID ) {
+		this.voiceChannelID = voiceChannelID;
 	}
 
 	public String getGuildID () {

@@ -36,6 +36,7 @@ public final class DiscordTauntBotApp {
 			dtbInput.setVerbose ( Boolean.parseBoolean ( properties.getProperty ( "verbose", "false" ) ) );
 			dtbInput.setGuildID ( properties.getProperty ( "guild.id" ) );
 			dtbInput.setChannelID ( properties.getProperty ( "channel.id" ) );
+			dtbInput.setVoiceChannelID ( properties.getProperty ( "voice.channel.id" ) );
 
 			var jdaBuilder = JDABuilder.createDefault ( token );
 			jdaBuilder.enableIntents ( GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES );

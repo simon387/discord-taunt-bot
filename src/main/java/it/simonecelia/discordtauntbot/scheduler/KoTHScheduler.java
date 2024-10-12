@@ -1,5 +1,6 @@
 package it.simonecelia.discordtauntbot.scheduler;
 
+import it.simonecelia.discordtauntbot.audio.tts.TTSSender;
 import it.simonecelia.discordtauntbot.business.DTBInput;
 import it.simonecelia.discordtauntbot.text.TextSender;
 import net.dv8tion.jda.api.JDA;
@@ -22,10 +23,13 @@ public class KoTHScheduler {
 
 	private final TextSender textSender;
 
+	private final TTSSender ttsSender;
+
 	private final DTBInput input;
 
-	public KoTHScheduler ( TextSender textSender, DTBInput input, JDA jda ) {
+	public KoTHScheduler ( TextSender textSender, TTSSender ttsSender, DTBInput input, JDA jda ) {
 		this.textSender = textSender;
+		this.ttsSender = ttsSender;
 		this.input = input;
 		this.input.setJda ( jda );
 		log.info ( "Current time is: {}", LocalTime.now () );
@@ -57,5 +61,6 @@ public class KoTHScheduler {
 	private void triggeredTask () {  // The task to be triggered
 		log.info ( "Triggered task at scheduled time: {}", LocalTime.now () );
 		textSender.sendKotHAlert ( input );
+		ttsSender.sendKotHAlertWithTTS ( input );
 	}
 }
