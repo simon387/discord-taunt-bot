@@ -33,6 +33,7 @@ public class TextSender {
 		var list = new StringBuilder ();
 		list.append ( "`/play <taunt>  -->   plays taunt`\n" );
 		list.append ( "`/p    <taunt>  -->   plays taunt`\n" );
+		list.append ( "`/tts  <text>   -->   send tts audio`\n" );
 		list.append ( "`/stop          -->   stops all audios`\n" );
 		list.append ( "`/tauntlist     -->   shows taunt list`\n" );
 		list.append ( "`/links         -->   shows links`\n" );
