@@ -19,12 +19,12 @@ public class TextSender {
 	public void sendLinks ( MessageReceivedEvent event ) {
 		log.info ( "Showing links" );
 		var list = new StringBuilder ();
-		list.append ( "https://eden.leryk.ovh/alchemy-leveling/\n" );
-		list.append ( "https://apothecary.daoc-sites.info/reference_reactives.php\n" );
-		list.append ( "https://www.darkageofcamelot.com/content/spellcraft-armor-bonuses\n" );
-		list.append ( "https://camelot.allakhazam.com/spellcraftcalc.html\n" );
-		list.append ( "http://tool.excidio.net/spelldamage.htm\n" );
-		list.append ( "https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
+		list.append ( "Alchemy guide: https://eden.leryk.ovh/alchemy-leveling/\n" );
+		list.append ( "Alchemy reference: https://apothecary.daoc-sites.info/reference_reactives.php\n" );
+		list.append ( "Armor 5th sloths: https://www.darkageofcamelot.com/content/spellcraft-armor-bonuses\n" );
+		list.append ( "Spellcraft calc: https://camelot.allakhazam.com/spellcraftcalc.html\n" );
+		list.append ( "Spelldamage table: http://tool.excidio.net/spelldamage.htm\n" );
+		list.append ( "Top Hunters: https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 
