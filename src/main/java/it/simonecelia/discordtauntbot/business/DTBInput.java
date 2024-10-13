@@ -6,6 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 
+@SuppressWarnings ( "unused" )
 public class DTBInput implements Serializable {
 
 	@Serial

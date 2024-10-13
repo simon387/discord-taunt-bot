@@ -10,8 +10,9 @@ public class TTSSender {
 
 	private static final Logger log = LoggerFactory.getLogger ( TTSSender.class );
 
+	// TTS WORKS ON TEXT-CHANNELS, DO NOT WORKS ON VOICE CHANNELS !!
 	public void sendKotHAlertWithTTS ( DTBInput input ) {
-		log.info ( "Attempting to send KoTH alert with TTS. guildId = {}, channelId = {}", input.getGuildID (), input.getVoiceChannelID () );
+		log.info ( "Attempting to send KoTH alert with TTS. guildId = {}, channelId = {}", input.getGuildID (), input.getChannelID () );
 
 		if ( input.getGuildID () == null ) {
 			log.error ( "Guild ID is null." );
@@ -24,14 +25,14 @@ public class TTSSender {
 			return;
 		}
 
-		var voiceChannel = guild.getVoiceChannelById ( input.getVoiceChannelID () );
-		if ( voiceChannel != null ) {
-			voiceChannel.sendMessage ( "KoTH event has started!" )
+		var textChannel = guild.getTextChannelById ( input.getChannelID () );
+		if ( textChannel != null ) {
+			textChannel.sendMessage ( "KoTH event has started!" )
 							.setTTS ( true ) // enable TTS
 							.queue ();
-			log.info ( "TTS message sent to channel: {}", voiceChannel.getName () );
+			log.info ( "TTS message sent to channel: {}", textChannel.getName () );
 		} else {
-			log.error ( "Channel not found, ID: {}", input.getVoiceChannelID () );
+			log.error ( "Channel not found, ID: {}", input.getChannelID () );
 		}
 	}
 
