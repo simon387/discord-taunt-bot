@@ -87,24 +87,24 @@ public class DiscordTauntBot extends ListenerAdapter {
 	@Override
 	public void onGuildVoiceUpdate ( @NotNull GuildVoiceUpdateEvent event ) {
 		var member = event.getMember ();
+		var joinedChannel = event.getChannelJoined ();
+		var leftChannel = event.getChannelLeft ();
 
-		if ( event.getChannelJoined () != null ) {
-			var joinedChannel = event.getChannelJoined ();
+		if ( joinedChannel != null ) {
 			log.info ( "{} entered voice channel: {}[id={}]", member.getEffectiveName (), joinedChannel.getName (), joinedChannel.getId () );
 		}
 
-		if ( event.getChannelLeft () != null ) {
-			var leftChannel = event.getChannelLeft ();
+		if ( leftChannel != null ) {
 			log.info ( "{} left voice channel: {}[id={}]", member.getEffectiveName (), leftChannel.getName (), leftChannel.getId () );
 		}
 
-		if ( event.getChannelJoined () != null && event.getChannelLeft () != null ) {
+		if ( joinedChannel != null && leftChannel != null ) {
 			log.info ( "{} moved from voice channel {}[id={}] to {}[id={}]",
 							member.getEffectiveName (),
-							event.getChannelLeft ().getName (),
-							event.getChannelLeft ().getId (),
-							event.getChannelJoined ().getName (),
-							event.getChannelJoined ().getId () );
+							leftChannel.getName (),
+							leftChannel.getId (),
+							joinedChannel.getName (),
+							joinedChannel.getId () );
 		}
 	}
 }
