@@ -81,7 +81,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 	}
 
 	public void setSchedulerAndJDA ( JDA jda ) {
-		koTHScheduler = new KoTHScheduler ( textSender, ttsSender, this.input, jda );
+		koTHScheduler = new KoTHScheduler ( ttsSender, this.input, jda );
 	}
 
 	@Override
