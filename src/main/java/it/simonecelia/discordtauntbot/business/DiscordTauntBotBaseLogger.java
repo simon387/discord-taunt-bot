@@ -1,6 +1,7 @@
 package it.simonecelia.discordtauntbot.business;
 
 import it.simonecelia.discordtauntbot.audio.tts.TTSSender;
+import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import it.simonecelia.discordtauntbot.scheduler.KoTHScheduler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
@@ -17,11 +18,11 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 
 	protected KoTHScheduler koTHScheduler;
 
-	protected final DTBInput input;
+	protected final DTBInputDTO input;
 
 	protected final TTSSender ttsSender;
 
-	public DiscordTauntBotBaseLogger ( DTBInput input ) {
+	public DiscordTauntBotBaseLogger ( DTBInputDTO input ) {
 		this.input = input;
 		ttsSender = new TTSSender ();
 	}

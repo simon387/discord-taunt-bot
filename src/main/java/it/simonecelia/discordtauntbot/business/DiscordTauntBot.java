@@ -1,6 +1,7 @@
 package it.simonecelia.discordtauntbot.business;
 
 import it.simonecelia.discordtauntbot.audio.AudioPlayer;
+import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import it.simonecelia.discordtauntbot.text.TextSender;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 
 	private final TextSender textSender;
 
-	public DiscordTauntBot ( DTBInput input ) {
+	public DiscordTauntBot ( DTBInputDTO input ) {
 		super ( input );
 		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();

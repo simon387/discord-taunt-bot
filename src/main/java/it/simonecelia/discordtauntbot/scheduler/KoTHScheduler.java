@@ -1,7 +1,7 @@
 package it.simonecelia.discordtauntbot.scheduler;
 
 import it.simonecelia.discordtauntbot.audio.tts.TTSSender;
-import it.simonecelia.discordtauntbot.business.DTBInput;
+import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import net.dv8tion.jda.api.JDA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +23,9 @@ public class KoTHScheduler {
 
 	private final TTSSender ttsSender;
 
-	private final DTBInput input;
+	private final DTBInputDTO input;
 
-	public KoTHScheduler ( TTSSender ttsSender, DTBInput input, JDA jda ) {
+	public KoTHScheduler ( TTSSender ttsSender, DTBInputDTO input, JDA jda ) {
 		this.ttsSender = ttsSender;
 		this.input = input;
 		this.input.setJda ( jda );

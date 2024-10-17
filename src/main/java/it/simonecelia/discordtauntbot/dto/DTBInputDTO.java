@@ -1,4 +1,4 @@
-package it.simonecelia.discordtauntbot.business;
+package it.simonecelia.discordtauntbot.dto;
 
 import net.dv8tion.jda.api.JDA;
 
@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 @SuppressWarnings ( "unused" )
-public class DTBInput implements Serializable {
+public class DTBInputDTO implements Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 7037141451686861046L;
