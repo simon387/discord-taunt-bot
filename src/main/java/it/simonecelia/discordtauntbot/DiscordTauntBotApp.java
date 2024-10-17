@@ -1,6 +1,6 @@
 package it.simonecelia.discordtauntbot;
 
-import it.simonecelia.discordtauntbot.business.DTBInput;
+import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import it.simonecelia.discordtauntbot.business.DiscordTauntBot;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -31,7 +31,7 @@ public final class DiscordTauntBotApp {
 				return;
 			}
 			properties.load ( new FileInputStream ( RESOURCES_DIR + "application.properties" ) );
-			var dtbInput = new DTBInput ();
+			var dtbInput = new DTBInputDTO ();
 			dtbInput.setAdminID ( properties.getProperty ( "admin.id" ) );
 			dtbInput.setVerbose ( Boolean.parseBoolean ( properties.getProperty ( "verbose", "false" ) ) );
 			dtbInput.setGuildID ( properties.getProperty ( "guild.id" ) );

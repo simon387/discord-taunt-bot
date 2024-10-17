@@ -1,6 +1,6 @@
 package it.simonecelia.discordtauntbot.audio.tts;
 
-import it.simonecelia.discordtauntbot.business.DTBInput;
+import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,7 @@ public class TTSSender {
 	private static final Logger log = LoggerFactory.getLogger ( TTSSender.class );
 
 	// TTS WORKS ON TEXT-CHANNELS, DO NOT WORKS ON VOICE CHANNELS !!
-	public void sendKotHAlertWithTTS ( DTBInput input ) {
+	public void sendKotHAlertWithTTS ( DTBInputDTO input ) {
 		log.info ( "Attempting to send KoTH alert with TTS. guildId = {}, channelId = {}", input.getGuildID (), input.getChannelID () );
 
 		if ( input.getGuildID () == null ) {
