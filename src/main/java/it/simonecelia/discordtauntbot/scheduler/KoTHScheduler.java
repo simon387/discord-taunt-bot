@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static it.simonecelia.discordtauntbot.util.Constants.KOTH_TIMES;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 
@@ -30,14 +31,10 @@ public class KoTHScheduler {
 		this.input.setJda ( jda );
 		log.info ( "Current time is: {}", LocalTime.now () );
 		this.scheduler = newScheduledThreadPool ( 1 );
-		scheduleTaskAt ( LocalTime.of ( 1, 0 ) );  // Schedule the task to trigger at a specific time
-		scheduleTaskAt ( LocalTime.of ( 5, 0 ) );  // E.g., Trigger the task at 17:00 (5:00 PM)
-		scheduleTaskAt ( LocalTime.of ( 8, 0 ) );
-		scheduleTaskAt ( LocalTime.of ( 13, 0 ) );
-		scheduleTaskAt ( LocalTime.of ( 17, 0 ) );
-		scheduleTaskAt ( LocalTime.of ( 21, 0 ) );
-		scheduleTaskAt ( LocalTime.of ( 23, 0 ) );
-		//TODO add other koth times
+
+		for ( var hour : KOTH_TIMES ) {
+			scheduleTaskAt ( LocalTime.of ( hour, 0 ) );
+		}
 	}
 
 	public void shutdown () {

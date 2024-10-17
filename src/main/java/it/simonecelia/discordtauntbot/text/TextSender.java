@@ -4,6 +4,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static it.simonecelia.discordtauntbot.util.Constants.KOTH_TIMES;
+
 
 public class TextSender {
 
@@ -37,6 +44,7 @@ public class TextSender {
 		list.append ( "`/tauntlist     -->   shows taunt list`\n" );
 		list.append ( "`/links         -->   shows links`\n" );
 		list.append ( "`/list          -->   shows this list`\n" );
+		list.append ( "`/koth          -->   shows how many minutes are left until the KoTH`\n" );
 		list.append ( "`/version       -->   shows version infos`\n" );
 		list.append ( "`/verbose       -->   switch verbose flag on/off (only admins)`\n" );
 		list.append ( "`/kill          -->   kills the bot (only admins)`\n" );
@@ -46,6 +54,31 @@ public class TextSender {
 	public void sendVersion ( MessageReceivedEvent event ) {
 		log.info ( "Showing version" );
 		event.getChannel ().sendMessage ( "https://github.com/simon387/discord-taunt-bot/blob/master/changelog.txt" ).queue ();
+	}
+
+	public void getTimeUntilNextKothTime ( MessageReceivedEvent event ) {
+		log.info ( "Showing how many minutes are left until the KoTH" );
+		List<LocalTime> scheduledTimes = new ArrayList<> ();
+
+		for ( int hour : KOTH_TIMES ) {
+			scheduledTimes.add ( LocalTime.of ( hour, 0 ) );
+		}
+
+		var shortestDuration = Duration.ofDays ( 1 );
+		for ( var time : scheduledTimes ) {
+			var duration = Duration.between ( LocalTime.now (), time );
+			if ( duration.isNegative () ) {
+				duration = duration.plusDays ( 1 );
+			}
+			if ( duration.compareTo ( shortestDuration ) < 0 ) {
+				shortestDuration = duration;
+			}
+		}
+
+		var hours = shortestDuration.toHoursPart ();
+		var minutes = shortestDuration.toMinutesPart ();
+
+		event.getChannel ().sendMessage ( "Time left until KoTH: " + hours + " hours and " + minutes + " minutes" ).queue ();
 	}
 
 }
