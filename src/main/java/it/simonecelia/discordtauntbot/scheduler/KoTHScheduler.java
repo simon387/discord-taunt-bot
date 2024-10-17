@@ -42,8 +42,7 @@ public class KoTHScheduler {
 	}
 
 	private void scheduleTaskAt ( LocalTime targetTime ) {  // Method to schedule a task at a specific time
-		var now = LocalTime.now ();
-		var initialDelay = Duration.between ( now, targetTime ).toMillis ();
+		var initialDelay = Duration.between ( LocalTime.now (), targetTime ).toMillis ();
 		if ( initialDelay < 0 ) {
 			initialDelay += Duration.ofDays ( 1 ).toMillis ();  // If the target time is before the current time, schedule for the next day
 		}
