@@ -56,6 +56,7 @@ public class DiscordTauntBot extends ListenerAdapter {
 		case "/tauntlist" -> textSender.sendTauntList ( event );
 		case "/links" -> textSender.sendLinks ( event );
 		case "/list" -> textSender.sendCmdList ( event );
+		case "/koth" -> textSender.getTimeUntilNextKothTime ( event );
 		case "/version" -> textSender.sendVersion ( event );
 		case "/verbose" -> {
 			if ( isFromAdmin ( event ) ) {
