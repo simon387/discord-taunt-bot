@@ -30,7 +30,7 @@ public class TextSender {
 		list.append ( "Armor 5th sloths: https://www.darkageofcamelot.com/content/spellcraft-armor-bonuses\n" );
 		list.append ( "Spellcraft calc: https://camelot.allakhazam.com/spellcraftcalc.html\n" );
 		list.append ( "Spelldamage table: http://tool.excidio.net/spelldamage.htm\n" );
-		list.append ( "Top Spears: https://eden-daoc.net/items?m=market&s=arcanium&r=2&t=14-0&f0=a-217" );
+		list.append ( "Top Spears: https://eden-daoc.net/items?m=market&s=arcanium&r=2&t=14-0&f0=a-217\n" );
 		list.append ( "Top Hunters: https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
