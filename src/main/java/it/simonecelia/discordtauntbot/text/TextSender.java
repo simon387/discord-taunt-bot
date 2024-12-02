@@ -1,5 +1,6 @@
 package it.simonecelia.discordtauntbot.text;
 
+import it.simonecelia.discordtauntbot.enums.KothTimesEnum;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +9,6 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static it.simonecelia.discordtauntbot.util.Constants.KOTH_TIMES;
 
 
 public class TextSender {
@@ -61,8 +60,8 @@ public class TextSender {
 		log.info ( "Showing how many minutes are left until the KoTH" );
 		List<LocalTime> scheduledTimes = new ArrayList<> ();
 
-		for ( int hour : KOTH_TIMES ) {
-			scheduledTimes.add ( LocalTime.of ( hour, 0 ) );
+		for ( var k : KothTimesEnum.values () ) {
+			scheduledTimes.add ( LocalTime.of ( k.getHours (), k.getMinutes () ) );
 		}
 
 		var shortestDuration = Duration.ofDays ( 1 );

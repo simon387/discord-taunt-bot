@@ -2,6 +2,7 @@ package it.simonecelia.discordtauntbot.scheduler;
 
 import it.simonecelia.discordtauntbot.audio.tts.TTSSender;
 import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
+import it.simonecelia.discordtauntbot.enums.KothTimesEnum;
 import net.dv8tion.jda.api.JDA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,6 @@ import java.time.LocalTime;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static it.simonecelia.discordtauntbot.util.Constants.KOTH_TIMES;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 
@@ -32,8 +32,8 @@ public class KoTHScheduler {
 		log.info ( "Current time is: {}", LocalTime.now () );
 		this.scheduler = newScheduledThreadPool ( 1 );
 
-		for ( var hour : KOTH_TIMES ) {
-			scheduleTaskAt ( LocalTime.of ( hour, 0 ) );
+		for ( var k : KothTimesEnum.values () ) {
+			scheduleTaskAt ( LocalTime.of ( k.getHours (), k.getMinutes () ) );
 		}
 	}
 
