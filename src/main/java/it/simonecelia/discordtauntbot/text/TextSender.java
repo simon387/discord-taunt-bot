@@ -89,11 +89,11 @@ public class TextSender {
 		list.append ( "`1) begin with Earthen essence gem (lvl21) until 21.`\n" );
 		list.append ( "`2) switch to earthen war sigil (39) - until lvl 45`\n" );
 		list.append ( "`3) switch to earthen evocation sigil (lvl64) until lvl 64`\n" );
-		list.append ( "`4) switch to eathen fervor sigil (76) until level 80\n`\n" );
+		list.append ( "`4) switch to eathen fervor sigil (76) until level 80`\n" );
 		list.append ( "`5) switch to earthen shielding gem (99) until 100+`\n" );
 		list.append ( "\n" );
 		list.append ( "`Alchemy:`\n" );
-		list.append ( "`1-350ish        do red/orange poisons and dyes when no poisons available. Craft til yellow or blue here, doesn't matter much.\n`\n" );
+		list.append ( "`1-350ish        do red/orange poisons and dyes when no poisons available. Craft til yellow or blue here, doesn't matter much.`\n" );
 		list.append ( "`350-410ish      weak elixir of healing`\n" );
 		list.append ( "`410ish-520ish   poisons again, whichever are red/oj up to lifebane, make lifebane until grey`\n" );
 		list.append ( "`520-555ish      stable spirit alloy tincture`\n" );
