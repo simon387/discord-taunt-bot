@@ -59,6 +59,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 				System.exit ( 0 );
 			}
 		}
+		case "/guide" -> textSender.sendCraftingGuide ( event );
 		default -> {
 		}
 		}
