@@ -48,7 +48,7 @@ public class TextSender {
 		list.append ( "`/version       -->   shows version infos`\n" );
 		list.append ( "`/verbose       -->   switch verbose flag on/off (only admins)`\n" );
 		list.append ( "`/kill          -->   kills the bot (only admins)`\n" );
-		list.append ( "`/guide         -->   shows craftomg guide`\n" );
+		list.append ( "`/guide         -->   shows crafting guide`\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 
