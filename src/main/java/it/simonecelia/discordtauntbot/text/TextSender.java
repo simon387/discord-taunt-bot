@@ -48,6 +48,7 @@ public class TextSender {
 		list.append ( "`/version       -->   shows version infos`\n" );
 		list.append ( "`/verbose       -->   switch verbose flag on/off (only admins)`\n" );
 		list.append ( "`/kill          -->   kills the bot (only admins)`\n" );
+		list.append ( "`/guide         -->   shows craftomg guide`\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 
@@ -81,4 +82,31 @@ public class TextSender {
 		event.getChannel ().sendMessage ( "Time left until KoTH: " + hours + " hours and " + minutes + " minutes" ).queue ();
 	}
 
+	public void sendCraftingGuide ( MessageReceivedEvent event ) {
+		log.info ( "Showing Crafting Guide" );
+		var list = new StringBuilder ();
+		list.append ( "`Spellcrafting:`\n" );
+		list.append ( "`1) begin with Earthen essence gem (lvl21) until 21.`\n" );
+		list.append ( "`2) switch to earthen war sigil (39) - until lvl 45`\n" );
+		list.append ( "`3) switch to earthen evocation sigil (lvl64) until lvl 64`\n" );
+		list.append ( "`4) switch to eathen fervor sigil (76) until level 80\n`\n" );
+		list.append ( "`5) switch to earthen shielding gem (99) until 100+`\n" );
+		list.append ( "\n" );
+		list.append ( "`Alchemy:`\n" );
+		list.append ( "`1-350ish        do red/orange poisons and dyes when no poisons available. Craft til yellow or blue here, doesn't matter much.\n`\n" );
+		list.append ( "`350-410ish      weak elixir of healing`\n" );
+		list.append ( "`410ish-520ish   poisons again, whichever are red/oj up to lifebane, make lifebane until grey`\n" );
+		list.append ( "`520-555ish      stable spirit alloy tincture`\n" );
+		list.append ( "`555ish-605ish   improved elixir of power`\n" );
+		list.append ( "`605-665ish      stable fire fine alloy tincture`\n" );
+		list.append ( "`665-700         volatile cold fine alloy weapon tincture`\n" );
+		list.append ( "`700-780         crafted weapon luster remover, take this all the way to grey`\n" );
+		list.append ( "`780-800         stable shard adamantium tincture`\n" );
+		list.append ( "`800-845ish      regular dyes`\n" );
+		list.append ( "`845-901?        unique dyes`\n" );
+		list.append ( "`901?-1000       draught of strength (NOT greater)`\n" );
+		list.append ( "`1000-1025ish    dark violet weapon luster`\n" );
+		list.append ( "`1025+           draught of might (NOT greater)`\n" );
+		event.getChannel ().sendMessage ( list ).queue ();
+	}
 }
