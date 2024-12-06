@@ -31,6 +31,7 @@ public class TextSender {
 		list.append ( "Top Spears: https://eden-daoc.net/items?m=market&s=arcanium&r=2&t=14-0&f0=a-217\n" );
 		list.append ( "Top Hunters: https://eden-daoc.net/herald?n=top_lwrp&c=hunter\n" );
 		list.append ( "Spelldamage table: http://tool.excidio.net/spelldamage.htm\n" );
+		list.append ( "Melee damage formulas: https://camelotherald.fandom.com/wiki/Melee_Damage\n\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 
