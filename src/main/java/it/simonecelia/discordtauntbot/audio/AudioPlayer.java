@@ -46,7 +46,7 @@ public class AudioPlayer {
 
 		var file = new File ( audioFile );
 		var fileName = file.getName ();
-		int lastDotIndex = fileName.lastIndexOf ( '.' );
+		var lastDotIndex = fileName.lastIndexOf ( '.' );
 		var fileNameWithoutExtension = ( lastDotIndex == -1 ) ? fileName : fileName.substring ( 0, lastDotIndex );
 
 		playerManager.loadItem ( audioFile, new AudioLoadResultHandler () {

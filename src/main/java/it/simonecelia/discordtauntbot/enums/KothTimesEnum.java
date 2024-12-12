@@ -1,12 +1,12 @@
 package it.simonecelia.discordtauntbot.enums;
 
 public enum KothTimesEnum {
-	UNO ( 5, 0 ),
-	DUE ( 8, 0 ),
-	TRE ( 10, 30 ),
-	QUA ( 13, 0 ),
-	CIN ( 17, 0 ),
-	SEI ( 23, 0 );
+	VALUE0 ( 5, 0 ),
+	VALUE1 ( 8, 0 ),
+	VALUE2 ( 10, 30 ),
+	VALUE3 ( 13, 0 ),
+	VALUE4 ( 17, 0 ),
+	VALUE5 ( 23, 0 );
 
 	private final int hours;
 
