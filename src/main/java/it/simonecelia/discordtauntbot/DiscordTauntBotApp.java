@@ -1,7 +1,7 @@
 package it.simonecelia.discordtauntbot;
 
-import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import it.simonecelia.discordtauntbot.business.DiscordTauntBot;
+import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
@@ -37,6 +37,8 @@ public final class DiscordTauntBotApp {
 			dtbInput.setGuildID ( properties.getProperty ( "guild.id" ) );
 			dtbInput.setChannelID ( properties.getProperty ( "channel.id" ) );
 			dtbInput.setVoiceChannelID ( properties.getProperty ( "voice.channel.id" ) );
+			dtbInput.setKothEnabled ( Boolean.parseBoolean ( properties.getProperty ( "koth.enabled" ) ) );
+			log.info ( "KoTH enabled: {}", dtbInput.isKothEnabled () );
 
 			var jdaBuilder = JDABuilder.createDefault ( token );
 			jdaBuilder.enableIntents ( GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES );

@@ -24,6 +24,8 @@ public class DTBInputDTO implements Serializable {
 
 	private JDA jda;
 
+	private boolean kothEnabled;
+
 	public String getAdminID () {
 		return adminID;
 	}
@@ -70,5 +72,13 @@ public class DTBInputDTO implements Serializable {
 
 	public void setJda ( JDA jda ) {
 		this.jda = jda;
+	}
+
+	public boolean isKothEnabled () {
+		return kothEnabled;
+	}
+
+	public void setKothEnabled ( boolean kothEnabled ) {
+		this.kothEnabled = kothEnabled;
 	}
 }

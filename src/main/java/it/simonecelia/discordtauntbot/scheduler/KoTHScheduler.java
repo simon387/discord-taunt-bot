@@ -32,8 +32,10 @@ public class KoTHScheduler {
 		log.info ( "Current time is: {}", LocalTime.now () );
 		this.scheduler = newScheduledThreadPool ( 1 );
 
-		for ( var k : KothTimesEnum.values () ) {
-			scheduleTaskAt ( LocalTime.of ( k.getHours (), k.getMinutes () ) );
+		if ( input.isKothEnabled () ) {
+			for ( var k : KothTimesEnum.values () ) {
+				scheduleTaskAt ( LocalTime.of ( k.getHours (), k.getMinutes () ) );
+			}
 		}
 	}
 
