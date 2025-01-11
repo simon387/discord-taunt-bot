@@ -25,11 +25,15 @@ public class AudioPlayer {
 
 	private final String ASSETS_DIR;
 
-	public AudioPlayer ( String currentPath ) {
+	private final String voiceChannelId;
+
+	public AudioPlayer ( String currentPath, String voiceChannelID ) {
 		this.ASSETS_DIR = currentPath + File.separator + "assets" + File.separator;
 		this.playerManager = new DefaultAudioPlayerManager ();
 		AudioSourceManagers.registerLocalSource ( playerManager );
 		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
+		this.voiceChannelId = voiceChannelID;
+		log.info ( "voiceChannelID: {}", voiceChannelID );
 	}
 
 	public void playAudio ( MessageReceivedEvent event, String content, boolean verbose ) {
@@ -39,6 +43,7 @@ public class AudioPlayer {
 
 		var voiceChannel = Objects.requireNonNull (
 						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
+		log.info ( "voiceChannel id: {}", voiceChannel.getId () );
 
 		var audioManager = event.getGuild ().getAudioManager ();
 		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );

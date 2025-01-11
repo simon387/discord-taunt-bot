@@ -22,7 +22,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 		super ( input );
 		textSender = new TextSender ();
 		var currentPath = new File ( "" ).getAbsolutePath ();
-		audioPlayer = new AudioPlayer ( currentPath );
+		audioPlayer = new AudioPlayer ( currentPath, input.getVoiceChannelID () );
 		log.info ( "App working dir is: {}", currentPath );
 		log.info ( "Admin ID is: {}", input.getAdminID () );
 		log.info ( "Verbose is: {}", input.isVerbose () );
