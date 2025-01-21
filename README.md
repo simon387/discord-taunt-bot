@@ -1,6 +1,6 @@
 # discord-taunt-bot
 
-+ git pull;mvn clean install;mvn quarkus:dev
++ git pull;mvn clean install package;java -jar target/quarkus-app/quarkus-run.jar
 
 
 ## links
@@ -11,6 +11,9 @@
 
 + ~~/version~~
 + nullpointer
++ download
++ sonarqube
++ banner
 
 ---
 
