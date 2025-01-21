@@ -1,31 +1,27 @@
 package it.simonecelia.discordtauntbot.business;
 
+import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.audio.AudioPlayer;
-import it.simonecelia.discordtauntbot.dto.DTBInputDTO;
 import it.simonecelia.discordtauntbot.text.TextSender;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 
+@ApplicationScoped
 public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 
-	private static final Logger log = LoggerFactory.getLogger ( DiscordTauntBot.class );
+	@Inject
+	AudioPlayer audioPlayer;
 
-	private final AudioPlayer audioPlayer;
+	@Inject
+	TextSender textSender;
 
-	private final TextSender textSender;
-
-	public DiscordTauntBot ( DTBInputDTO input ) {
-		super ( input );
-		textSender = new TextSender ();
-		var currentPath = new File ( "" ).getAbsolutePath ();
-		audioPlayer = new AudioPlayer ( currentPath, input.getVoiceChannelID () );
-		log.info ( "App working dir is: {}", currentPath );
-		log.info ( "Admin ID is: {}", input.getAdminID () );
-		log.info ( "Verbose is: {}", input.isVerbose () );
+	@PostConstruct
+	public void postConstruct () {
+		Log.infof ( "Admin ID is: %s", appConfig.getAdminId () );
+		Log.infof ( "Verbose is: %s", appConfig.isVerbose () );
 	}
 
 	@Override
@@ -35,12 +31,12 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 		}
 		var message = event.getMessage ();
 		var content = message.getContentRaw ().trim ();
-		log.info ( "Got message from: {}, with Content: {}", event.getAuthor (), content );
+		Log.infof ( "Got message from: %s, with Content: %s", event.getAuthor (), content );
 
 		switch ( content ) {
-		case String c when c.startsWith ( "/p " ) || c.startsWith ( "/play " ) -> audioPlayer.playAudio ( event, content, this.input.isVerbose () );
+		case String c when c.startsWith ( "/p " ) || c.startsWith ( "/play " ) -> audioPlayer.playAudio ( event, content, appConfig.isVerbose () );
 		case String c when c.startsWith ( "/tts " ) -> ttsSender.sendTTS ( event, content );
-		case "/stop" -> audioPlayer.stopAudio ( event, this.input.isVerbose () );
+		case "/stop" -> audioPlayer.stopAudio ( event, appConfig.isVerbose () );
 		case "/tauntlist" -> textSender.sendTauntList ( event );
 		case "/links" -> textSender.sendLinks ( event );
 		case "/list" -> textSender.sendCmdList ( event );
@@ -48,9 +44,9 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 		case "/version" -> textSender.sendVersion ( event );
 		case "/verbose" -> {
 			if ( isFromAdmin ( event ) ) {
-				this.input.setVerbose ( !this.input.isVerbose () );
-				log.info ( "Verbose enabled: {}", this.input.isVerbose () );
-				event.getChannel ().sendMessage ( "Verbose enabled:" + this.input.isVerbose () ).queue ();
+				appConfig.setVerbose ( !appConfig.isVerbose () );
+				Log.infof ( "Verbose enabled: %s", appConfig.isVerbose () );
+				event.getChannel ().sendMessage ( "Verbose enabled:" + appConfig.isVerbose () ).queue ();
 			}
 		}
 		case "/kill" -> {

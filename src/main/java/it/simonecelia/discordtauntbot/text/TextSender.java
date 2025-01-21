@@ -1,9 +1,9 @@
 package it.simonecelia.discordtauntbot.text;
 
+import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.enums.KothTimesEnum;
+import jakarta.enterprise.context.ApplicationScoped;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -11,18 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+@ApplicationScoped
 public class TextSender {
 
-	private static final Logger log = LoggerFactory.getLogger ( TextSender.class );
-
 	public void sendTauntList ( MessageReceivedEvent event ) {
-		log.info ( "Showing tauntlist" );
+		Log.info ( "Showing tauntlist" );
 		event.getChannel ().sendMessage ( "https://www.simonecelia.it/ts-bot-web/index.html" ).queue ();
 	}
 
 	@SuppressWarnings ( "HttpUrlsUsage" )
 	public void sendLinks ( MessageReceivedEvent event ) {
-		log.info ( "Showing links" );
+		Log.info ( "Showing links" );
 		var list = new StringBuilder ();
 		list.append ( "Alchemy guide: https://eden.leryk.ovh/alchemy-leveling/\n" );
 		list.append ( "Alchemy reference: https://apothecary.daoc-sites.info/reference_reactives.php\n" );
@@ -36,7 +35,7 @@ public class TextSender {
 	}
 
 	public void sendCmdList ( MessageReceivedEvent event ) {
-		log.info ( "Listing all commands" );
+		Log.info ( "Listing all commands" );
 		var list = new StringBuilder ();
 		list.append ( "`/play <taunt>  -->   plays taunt`\n" );
 		list.append ( "`/p    <taunt>  -->   plays taunt`\n" );
@@ -54,12 +53,12 @@ public class TextSender {
 	}
 
 	public void sendVersion ( MessageReceivedEvent event ) {
-		log.info ( "Showing version" );
+		Log.info ( "Showing version" );
 		event.getChannel ().sendMessage ( "https://github.com/simon387/discord-taunt-bot/blob/master/changelog.txt" ).queue ();
 	}
 
 	public void getTimeUntilNextKothTime ( MessageReceivedEvent event ) {
-		log.info ( "Showing how many minutes are left until the KoTH" );
+		Log.info ( "Showing how many minutes are left until the KoTH" );
 		List<LocalTime> scheduledTimes = new ArrayList<> ();
 
 		for ( var k : KothTimesEnum.values () ) {
@@ -84,7 +83,7 @@ public class TextSender {
 	}
 
 	public void sendCraftingGuide ( MessageReceivedEvent event ) {
-		log.info ( "Showing Crafting Guide" );
+		Log.info ( "Showing Crafting Guide" );
 		var list = new StringBuilder ();
 		list.append ( "`Spellcrafting:`\n" );
 		list.append ( "`1) begin with Earthen essence gem (lvl21) until 21.`\n" );

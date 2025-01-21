@@ -4,16 +4,13 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.quarkus.logging.Log;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class TrackScheduler extends AudioEventAdapter {
-
-	private static final Logger log = LoggerFactory.getLogger ( TrackScheduler.class );
 
 	private final AudioPlayer player;
 
@@ -27,7 +24,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void queue ( AudioTrack track ) {
 		if ( !player.startTrack ( track, true ) ) {
 			var added = queue.offer ( track );
-			log.debug ( "Player startTrack queue offer added: {}", added );
+			Log.debugf ( "Player startTrack queue offer added: %s", added );
 		}
 	}
 
