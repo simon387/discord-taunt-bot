@@ -1,4 +1,4 @@
-package it.simonecelia.discordtauntbot.audio;
+package it.simonecelia.discordtauntbot.service.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;

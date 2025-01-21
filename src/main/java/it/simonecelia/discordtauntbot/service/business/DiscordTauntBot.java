@@ -1,8 +1,8 @@
-package it.simonecelia.discordtauntbot.business;
+package it.simonecelia.discordtauntbot.service.business;
 
 import io.quarkus.logging.Log;
-import it.simonecelia.discordtauntbot.audio.AudioPlayer;
-import it.simonecelia.discordtauntbot.text.TextSender;
+import it.simonecelia.discordtauntbot.service.audio.AudioPlayer;
+import it.simonecelia.discordtauntbot.service.text.TextSender;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

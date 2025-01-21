@@ -1,8 +1,8 @@
 package it.simonecelia.discordtauntbot.scheduler;
 
 import io.quarkus.logging.Log;
-import it.simonecelia.discordtauntbot.AppConfig;
-import it.simonecelia.discordtauntbot.audio.tts.TTSSender;
+import it.simonecelia.discordtauntbot.config.AppConfig;
+import it.simonecelia.discordtauntbot.service.audio.tts.TTSSender;
 import it.simonecelia.discordtauntbot.enums.KothTimesEnum;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;

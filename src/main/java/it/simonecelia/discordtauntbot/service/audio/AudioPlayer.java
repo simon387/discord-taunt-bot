@@ -1,4 +1,4 @@
-package it.simonecelia.discordtauntbot.audio;
+package it.simonecelia.discordtauntbot.service.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -8,7 +8,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.quarkus.logging.Log;
-import it.simonecelia.discordtauntbot.AppConfig;
+import it.simonecelia.discordtauntbot.config.AppConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

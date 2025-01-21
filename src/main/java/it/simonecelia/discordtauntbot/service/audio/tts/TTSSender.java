@@ -1,7 +1,7 @@
-package it.simonecelia.discordtauntbot.audio.tts;
+package it.simonecelia.discordtauntbot.service.audio.tts;
 
 import io.quarkus.logging.Log;
-import it.simonecelia.discordtauntbot.AppConfig;
+import it.simonecelia.discordtauntbot.config.AppConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

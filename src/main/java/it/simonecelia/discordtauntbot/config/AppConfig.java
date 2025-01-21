@@ -1,4 +1,4 @@
-package it.simonecelia.discordtauntbot;
+package it.simonecelia.discordtauntbot.config;
 
 import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
@@ -31,9 +31,9 @@ public class AppConfig {
 	@ConfigProperty ( name = "koth.enabled" )
 	boolean kothEnabled;
 
-	String discordBotToken;
+	private String discordBotToken;
 
-	JDA jda;
+	private JDA jda;
 
 	@PostConstruct
 	public void onStartup () {
