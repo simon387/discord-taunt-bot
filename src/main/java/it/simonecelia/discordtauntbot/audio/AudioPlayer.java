@@ -7,43 +7,46 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import io.quarkus.logging.Log;
+import it.simonecelia.discordtauntbot.AppConfig;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Objects;
 
 
+@ApplicationScoped
 public class AudioPlayer {
 
-	private static final Logger log = LoggerFactory.getLogger ( AudioPlayer.class );
+	@Inject
+	AppConfig appConfig;
 
-	private final AudioPlayerManager playerManager;
+	private AudioPlayerManager playerManager;
 
-	private final TrackScheduler trackScheduler;
+	private TrackScheduler trackScheduler;
 
-	private final String ASSETS_DIR;
+	private String assetDir;
 
-	private final String voiceChannelId;
-
-	public AudioPlayer ( String currentPath, String voiceChannelID ) {
-		this.ASSETS_DIR = currentPath + File.separator + "assets" + File.separator;
+	@PostConstruct
+	public void onStartup () {
+		this.assetDir = new File ( "" ).getAbsolutePath () + File.separator + "assets" + File.separator;
 		this.playerManager = new DefaultAudioPlayerManager ();
 		AudioSourceManagers.registerLocalSource ( playerManager );
 		this.trackScheduler = new TrackScheduler ( playerManager.createPlayer () );
-		this.voiceChannelId = voiceChannelID;
-		log.info ( "voiceChannelID: {}", voiceChannelID );
+		Log.infof ( "voiceChannelID: %s", appConfig.getVoiceChannelId () );
 	}
 
 	public void playAudio ( MessageReceivedEvent event, String content, boolean verbose ) {
 		var begindIndex = content.startsWith ( "/p " ) ? 3 : 6;
-		var audioFile = ASSETS_DIR + content.substring ( begindIndex ).trim () + ".mp3";
-		log.info ( "Playing: {}", audioFile );
+		var audioFile = assetDir + content.substring ( begindIndex ).trim () + ".mp3";
+		Log.infof ( "Playing: %s", audioFile );
 
 		var voiceChannel = Objects.requireNonNull (
 						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
-		log.info ( "voiceChannel id: {}", voiceChannel.getId () );
+		Log.infof ( "voiceChannel id: %s", voiceChannel.getId () );
 
 		var audioManager = event.getGuild ().getAudioManager ();
 		audioManager.setSendingHandler ( new AudioPlayerSendHandler ( trackScheduler.getPlayer () ) );
@@ -60,7 +63,7 @@ public class AudioPlayer {
 			public void trackLoaded ( AudioTrack track ) {
 				trackScheduler.getPlayer ().stopTrack ();
 				trackScheduler.queue ( track );
-				log.info ( "Playing: {}", audioFile );
+				Log.infof ( "Playing: %s", audioFile );
 				if ( verbose ) {
 					event.getChannel ().sendMessage ( "Playing: " + fileNameWithoutExtension ).queue ();
 				}
@@ -73,20 +76,20 @@ public class AudioPlayer {
 
 			@Override
 			public void noMatches () {
-				log.error ( "Audio file not found: {}", audioFile );
+				Log.errorf ( "Audio file not found: %s", audioFile );
 				event.getChannel ().sendMessage ( "Audio file not found: " + fileNameWithoutExtension ).queue ();
 			}
 
 			@Override
 			public void loadFailed ( FriendlyException exception ) {
-				log.error ( "Error on loading audio file: {}", exception.getMessage () );
+				Log.errorf ( "Error on loading audio file: %s", exception.getMessage () );
 				event.getChannel ().sendMessage ( "Error on loading audio file: " + exception.getMessage () ).queue ();
 			}
 		} );
 	}
 
 	public void stopAudio ( MessageReceivedEvent event, boolean verbose ) {
-		log.info ( "Stopping audio playback" );
+		Log.info ( "Stopping audio playback" );
 		trackScheduler.getPlayer ().stopTrack ();  // Stop the current track
 
 		var audioManager = event.getGuild ().getAudioManager ();  // Get the voice channel and close the audio connection
