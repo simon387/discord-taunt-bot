@@ -2,7 +2,8 @@ package it.simonecelia.discordtauntbot;
 
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
-import it.simonecelia.discordtauntbot.business.DiscordTauntBot;
+import it.simonecelia.discordtauntbot.config.AppConfig;
+import it.simonecelia.discordtauntbot.service.business.DiscordTauntBot;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,7 +12,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 
 @Startup
-
 @ApplicationScoped
 public final class DiscordTauntBotApp {
 

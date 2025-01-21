@@ -1,4 +1,4 @@
-package it.simonecelia.discordtauntbot.text;
+package it.simonecelia.discordtauntbot.service.text;
 
 import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.enums.KothTimesEnum;

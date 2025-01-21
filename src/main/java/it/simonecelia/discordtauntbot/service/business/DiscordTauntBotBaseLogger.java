@@ -1,8 +1,8 @@
-package it.simonecelia.discordtauntbot.business;
+package it.simonecelia.discordtauntbot.service.business;
 
 import io.quarkus.logging.Log;
-import it.simonecelia.discordtauntbot.AppConfig;
-import it.simonecelia.discordtauntbot.audio.tts.TTSSender;
+import it.simonecelia.discordtauntbot.config.AppConfig;
+import it.simonecelia.discordtauntbot.service.audio.tts.TTSSender;
 import it.simonecelia.discordtauntbot.scheduler.KoTHScheduler;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
