@@ -10,10 +10,14 @@
 ## todos
 
 + ~~/version~~
-+ nullpointer
++ ~~sonarqube~~
++ ~~banner~~
 + download
-+ sonarqube
-+ banner
++ nullpointer
+
+## dev VMs options:
+
+```-Dquarkus.banner.enabled=true -Dquarkus.analytics.disabled=true -Dquarkus.test.continuous-testing=disabled```
 
 ---
 
