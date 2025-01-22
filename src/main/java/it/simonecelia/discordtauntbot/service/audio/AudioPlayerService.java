@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 @ApplicationScoped
-public class AudioPlayer {
+public class AudioPlayerService {
 
 	@Inject
 	AppConfig appConfig;

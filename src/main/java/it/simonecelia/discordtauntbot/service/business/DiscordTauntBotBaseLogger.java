@@ -2,7 +2,7 @@ package it.simonecelia.discordtauntbot.service.business;
 
 import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.config.AppConfig;
-import it.simonecelia.discordtauntbot.service.audio.tts.TTSSender;
+import it.simonecelia.discordtauntbot.service.audio.tts.TTSSenderService;
 import it.simonecelia.discordtauntbot.scheduler.KoTHScheduler;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
@@ -16,7 +16,7 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 	protected KoTHScheduler koTHScheduler;
 
 	@Inject
-	TTSSender ttsSender;
+	TTSSenderService ttsSender;
 
 	@Inject
 	AppConfig appConfig;

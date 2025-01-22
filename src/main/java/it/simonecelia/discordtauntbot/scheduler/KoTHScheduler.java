@@ -2,7 +2,7 @@ package it.simonecelia.discordtauntbot.scheduler;
 
 import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.config.AppConfig;
-import it.simonecelia.discordtauntbot.service.audio.tts.TTSSender;
+import it.simonecelia.discordtauntbot.service.audio.tts.TTSSenderService;
 import it.simonecelia.discordtauntbot.enums.KothTimesEnum;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +20,7 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 public class KoTHScheduler {
 
 	@Inject
-	TTSSender ttsSender;
+	TTSSenderService ttsSender;
 
 	@Inject
 	AppConfig appConfig;
