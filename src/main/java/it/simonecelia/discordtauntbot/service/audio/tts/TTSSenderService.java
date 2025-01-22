@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 
 @ApplicationScoped
-public class TTSSender {
+public class TTSSenderService {
 
 	@Inject
 	AppConfig appConfig;

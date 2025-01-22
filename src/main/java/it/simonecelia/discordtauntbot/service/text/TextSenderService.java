@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @ApplicationScoped
-public class TextSender {
+public class TextSenderService {
 
 	public void sendTauntList ( MessageReceivedEvent event ) {
 		Log.info ( "Showing tauntlist" );

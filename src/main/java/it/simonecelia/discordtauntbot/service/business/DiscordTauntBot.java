@@ -1,8 +1,9 @@
 package it.simonecelia.discordtauntbot.service.business;
 
 import io.quarkus.logging.Log;
-import it.simonecelia.discordtauntbot.service.audio.AudioPlayer;
-import it.simonecelia.discordtauntbot.service.text.TextSender;
+import it.simonecelia.discordtauntbot.service.audio.AudioPlayerService;
+import it.simonecelia.discordtauntbot.service.download.DownloadService;
+import it.simonecelia.discordtauntbot.service.text.TextSenderService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,10 +14,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 
 	@Inject
-	AudioPlayer audioPlayer;
+	AudioPlayerService audioPlayer;
 
 	@Inject
-	TextSender textSender;
+	TextSenderService textSender;
+
+	@Inject
+	DownloadService downloadService;
 
 	@PostConstruct
 	public void onStartup () {
@@ -56,8 +60,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 			}
 		}
 		case "/guide" -> textSender.sendCraftingGuide ( event );
-		default -> {
-		}
+		default -> downloadService.attemptDownload ( content );
 		}
 	}
 
