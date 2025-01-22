@@ -10,7 +10,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 @ApplicationScoped
 public class TTSSender {
 
-	@Inject AppConfig appConfig;
+	@Inject
+	AppConfig appConfig;
 
 	// TTS WORKS ON TEXT-CHANNELS, DO NOT WORKS ON VOICE CHANNELS !!
 	public void sendKotHAlertWithTTS () {

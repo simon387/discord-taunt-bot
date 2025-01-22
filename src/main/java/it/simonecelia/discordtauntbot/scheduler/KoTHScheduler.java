@@ -28,7 +28,7 @@ public class KoTHScheduler {
 	private ScheduledExecutorService scheduler;
 
 	@PostConstruct
-	public void postConstruct () {
+	public void onStartup () {
 		Log.infof ( "Current time is: %s", LocalTime.now () );
 		this.scheduler = newScheduledThreadPool ( 1 );
 		if ( appConfig.isKothEnabled () ) {

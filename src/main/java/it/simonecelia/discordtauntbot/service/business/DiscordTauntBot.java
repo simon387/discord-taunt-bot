@@ -19,7 +19,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 	TextSender textSender;
 
 	@PostConstruct
-	public void postConstruct () {
+	public void onStartup () {
 		Log.infof ( "Admin ID is: %s", appConfig.getAdminId () );
 		Log.infof ( "Verbose is: %s", appConfig.isVerbose () );
 	}

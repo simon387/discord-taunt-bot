@@ -1,3 +1,9 @@
+Version 1.5.3
+- code refactoring
+- added banner
+- update dependencies
+- update readme
+
 Version 1.5.2
 - code refactoring
 
