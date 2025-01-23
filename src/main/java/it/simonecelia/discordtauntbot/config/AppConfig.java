@@ -31,9 +31,15 @@ public class AppConfig {
 	@ConfigProperty ( name = "koth.enabled" )
 	boolean kothEnabled;
 
+	private JDA jda;
+
 	private String discordBotToken;
 
-	private JDA jda;
+	private String jdownloaderDeviceName;
+
+	private String jdownloaderEmail;
+
+	private String jdownloaderPassword;
 
 	@PostConstruct
 	public void onStartup () {
@@ -45,9 +51,20 @@ public class AppConfig {
 			}
 			properties.load ( input );
 			discordBotToken = properties.getProperty ( "discord.bot.token" );
+			jdownloaderDeviceName = properties.getProperty ( "jdownloader.device.name" );
+			jdownloaderEmail = properties.getProperty ( "jdownloader.email" );
+			jdownloaderPassword = properties.getProperty ( "jdownloader.password" );
 		} catch ( IOException ex ) {
 			Log.error ( ex );
 		}
+	}
+
+	public void setJda ( JDA jda ) {
+		this.jda = jda;
+	}
+
+	public void setVerbose ( boolean verbose ) {
+		this.verbose = verbose;
 	}
 
 	public String getAdminId () {
@@ -56,10 +73,6 @@ public class AppConfig {
 
 	public boolean isVerbose () {
 		return verbose;
-	}
-
-	public void setVerbose ( boolean b ) {
-		this.verbose = b;
 	}
 
 	public String getChannelId () {
@@ -78,15 +91,23 @@ public class AppConfig {
 		return kothEnabled;
 	}
 
-	public String getDiscordBotToken () {
-		return discordBotToken;
-	}
-
 	public JDA getJda () {
 		return jda;
 	}
 
-	public void setJda ( JDA jda ) {
-		this.jda = jda;
+	public String getDiscordBotToken () {
+		return discordBotToken;
+	}
+
+	public String getJdownloaderDeviceName () {
+		return jdownloaderDeviceName;
+	}
+
+	public String getJdownloaderEmail () {
+		return jdownloaderEmail;
+	}
+
+	public String getJdownloaderPassword () {
+		return jdownloaderPassword;
 	}
 }
