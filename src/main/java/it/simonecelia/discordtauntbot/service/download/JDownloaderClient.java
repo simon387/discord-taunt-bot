@@ -1,6 +1,8 @@
 package it.simonecelia.discordtauntbot.service.download;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.config.AppConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,11 +15,18 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @ApplicationScoped
@@ -42,116 +51,141 @@ public class JDownloaderClient {
 	}
 
 	public boolean addDownload_ ( String downloadLink ) {
-		main ( null );
+		try {
+			connect (email, password);
+		} catch ( Exception e ) {
+			throw new RuntimeException ( e );
+		}
 		return true;
 	}
 
-	private final String MY_JD_URL = "https://api.jdownloader.org";
-
-	private final ObjectMapper objectMapper = new ObjectMapper ();
-
+	private byte[] loginSecret;
+	private byte[] deviceSecret;
 	private String sessionToken;
-
 	private String regainToken;
-
-	public void main ( String[] args ) {
-		try ( CloseableHttpClient httpClient = HttpClients.createDefault () ) {
-			// Login
-			boolean loginSuccess = performLogin ( httpClient );
-			if ( !loginSuccess ) {
-				System.out.println ( "Login failed!" );
-				return;
-			}
-
-			// Get devices
-			String devices = getDevices ( httpClient );
-			System.out.println ( "Devices response: " + devices );
-
-			// Add download only if we have valid authentication
-			if ( loginSuccess && !devices.contains ( "BAD_PARAMETERS" ) ) {
-				String linkToDownload = "https://example.com/file.zip";
-				boolean downloadAdded = addDownload ( httpClient, linkToDownload );
-				System.out.println ( "Download added: " + downloadAdded );
-			}
-
-		} catch ( Exception e ) {
-			e.printStackTrace ();
-		}
+	private byte[] serverEncryptionToken;
+	private byte[] deviceEncryptionToken;
+	private long requestId;
+	private void initSecrets(String email, String password) throws Exception {
+		loginSecret = createSecretHash(email, password, "server");
+		deviceSecret = createSecretHash(email, password, "device");
 	}
 
-	private boolean performLogin ( CloseableHttpClient httpClient ) throws Exception {
-		HttpPost request = new HttpPost ( MY_JD_URL + "/my/connect" );
+	private byte[] createSecretHash(String email, String password, String domain) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		md.update((email.toLowerCase() + password + domain.toLowerCase()).getBytes(StandardCharsets.UTF_8));
+		return md.digest();
+	}
 
-		// Generate email hash and login secret
-		String emailHash = createEmailHash ( email.toLowerCase () );
-		String loginSecret = createLoginSecret ( emailHash, password );
+	private void updateRequestId() {
+		requestId = Instant.now().toEpochMilli();
+	}
 
-		// Create connection request
-		String jsonBody = String.format (
-						"{\"email\":\"%s\",\"appkey\":\"my.jdownloader.org\",\"loginSecret\":\"%s\"}",
-						emailHash, loginSecret
-		);
+	private String calculateSignature(byte[] key, String data) throws Exception {
+		Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+		SecretKeySpec secretKey = new SecretKeySpec(key, "HmacSHA256");
+		sha256Hmac.init(secretKey);
+		byte[] signatureBytes = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+		return bytesToHex(signatureBytes);
+	}
 
-		System.out.println ( "Attempting login with email hash: " + emailHash );
+	private static String bytesToHex(byte[] bytes) {
+		StringBuilder result = new StringBuilder();
+		for (byte b : bytes) {
+			result.append(String.format("%02x", b));
+		}
+		return result.toString();
+	}
 
-		request.setEntity ( new StringEntity ( jsonBody ) );
-		request.setHeader ( "Content-Type", "application/json" );
+	private byte[] updateEncryptionToken(byte[] oldToken, String sessionToken) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		md.update(oldToken);
+		md.update(hexToBytes(sessionToken));
+		return md.digest();
+	}
 
-		try ( CloseableHttpResponse response = httpClient.execute ( request ) ) {
-			String result = EntityUtils.toString ( response.getEntity () );
-			System.out.println ( "Login response: " + result );
+	private static byte[] hexToBytes(String hexString) {
+		int len = hexString.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+			data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+							+ Character.digit(hexString.charAt(i+1), 16));
+		}
+		return data;
+	}
 
-			if ( result.contains ( "sessiontoken" ) ) {
-				sessionToken = objectMapper.readTree ( result ).path ( "sessiontoken" ).asText ();
-				regainToken = objectMapper.readTree ( result ).path ( "regaintoken" ).asText ();
+	private byte[] encrypt(byte[] secretToken, String data) throws Exception {
+		byte[] iv = Arrays.copyOfRange(secretToken, 0, secretToken.length / 2);
+		byte[] key = Arrays.copyOfRange(secretToken, secretToken.length / 2, secretToken.length);
+
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+		IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+		byte[] padded = pad(data.getBytes(StandardCharsets.UTF_8));
+		byte[] encrypted = cipher.doFinal(padded);
+		return Base64.getEncoder().encode(encrypted);
+	}
+
+	private byte[] decrypt(byte[] secretToken, String encryptedData) throws Exception {
+		byte[] iv = Arrays.copyOfRange(secretToken, 0, secretToken.length / 2);
+		byte[] key = Arrays.copyOfRange(secretToken, secretToken.length / 2, secretToken.length);
+
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+		IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+		byte[] decoded = Base64.getDecoder().decode(encryptedData);
+		byte[] decrypted = cipher.doFinal(decoded);
+		return unpad(decrypted);
+	}
+
+	private byte[] pad(byte[] input) {
+		int blockSize = 16;
+		int padLength = blockSize - (input.length % blockSize);
+		byte[] padded = new byte[input.length + padLength];
+		System.arraycopy(input, 0, padded, 0, input.length);
+		for (int i = input.length; i < padded.length; i++) {
+			padded[i] = (byte) padLength;
+		}
+		return padded;
+	}
+
+	private byte[] unpad(byte[] input) {
+		int padLength = input[input.length - 1];
+		byte[] unpadded = new byte[input.length - padLength];
+		System.arraycopy(input, 0, unpadded, 0, unpadded.length);
+		return unpadded;
+	} private static final String APP_KEY = "http://git.io/vmcsk";
+
+	public boolean connect(String email, String password) throws Exception {
+		updateRequestId();
+		initSecrets(email, password);
+
+		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+			String queryParams = String.format("email=%s&appkey=%s",
+							URLEncoder.encode(email, StandardCharsets.UTF_8.toString()),
+							URLEncoder.encode(APP_KEY, StandardCharsets.UTF_8.toString()));
+
+			HttpGet request = new HttpGet(BASE_URL + "/my/connect?" + queryParams +
+							"&signature=" + calculateSignature(loginSecret, queryParams) +
+							"&rid=" + requestId);
+
+			try (CloseableHttpResponse response = httpClient.execute(request)) {
+				String responseBody = EntityUtils.toString(response.getEntity());
+				JsonNode jsonResponse = MAPPER.readTree(responseBody);
+
+				sessionToken = jsonResponse.get("sessiontoken").asText();
+				regainToken = jsonResponse.get("regaintoken").asText();
+
+				serverEncryptionToken = updateEncryptionToken(loginSecret, sessionToken);
+				deviceEncryptionToken = updateEncryptionToken(deviceSecret, sessionToken);
+
 				return true;
 			}
-			return false;
 		}
-	}
+	}    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private String getDevices ( CloseableHttpClient httpClient ) throws Exception {
-		HttpGet request = new HttpGet ( MY_JD_URL + "/my/listdevices" );
-		request.setHeader ( "Authorization", "Bearer " + sessionToken );
-		request.setHeader ( "Accept", "application/json" );
-
-		try ( CloseableHttpResponse response = httpClient.execute ( request ) ) {
-			return EntityUtils.toString ( response.getEntity () );
-		}
-	}
-
-	private boolean addDownload ( CloseableHttpClient httpClient, String linkToDownload ) throws Exception {
-		HttpPost request = new HttpPost ( MY_JD_URL + "/v2/devices/" + deviceName + "/linkgrabber/add" );
-		request.setHeader ( "Authorization", "Bearer " + sessionToken );
-
-		String jsonBody = String.format ( "{\"links\":[\"%s\"],\"autostart\":true}", linkToDownload );
-		request.setEntity ( new StringEntity ( jsonBody ) );
-		request.setHeader ( "Content-Type", "application/json" );
-
-		try ( CloseableHttpResponse response = httpClient.execute ( request ) ) {
-			String result = EntityUtils.toString ( response.getEntity () );
-			return !result.contains ( "error" ) && !result.contains ( "BAD_PARAMETERS" );
-		}
-	}
-
-	private String createEmailHash ( String email ) throws Exception {
-		MessageDigest md = MessageDigest.getInstance ( "SHA-256" );
-		byte[] digest = md.digest ( email.getBytes ( StandardCharsets.UTF_8 ) );
-		return Base64.getEncoder ().encodeToString ( digest );
-	}
-
-	private String createLoginSecret ( String emailHash, String password ) throws Exception {
-		// Create login secret using email hash and password
-		MessageDigest md = MessageDigest.getInstance ( "SHA-256" );
-		String saltedPw = emailHash + password;
-		byte[] digest = md.digest ( saltedPw.getBytes ( StandardCharsets.UTF_8 ) );
-		return Base64.getEncoder ().encodeToString ( digest );
-	}
-
-	private String encrypt ( String data, String key ) throws Exception {
-		Mac sha256_HMAC = Mac.getInstance ( "HmacSHA256" );
-		SecretKeySpec secretKey = new SecretKeySpec ( key.getBytes ( StandardCharsets.UTF_8 ), "HmacSHA256" );
-		sha256_HMAC.init ( secretKey );
-		return Base64.getEncoder ().encodeToString ( sha256_HMAC.doFinal ( data.getBytes ( StandardCharsets.UTF_8 ) ) );
-	}
 }
