@@ -11,6 +11,6 @@ public class JDownloader2Service {
 	JDownloaderClient jDownloaderClient;
 
 	public void downloadFromUrl ( String url ) {
-		jDownloaderClient.addDownload ( url ); //TODO
+		jDownloaderClient.addDownload_ ( url ); //TODO
 	}
 }
