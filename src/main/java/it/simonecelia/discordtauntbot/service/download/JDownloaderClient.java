@@ -52,7 +52,11 @@ public class JDownloaderClient {
 
 	public boolean addDownload_ ( String downloadLink ) {
 		try {
-			connect (email, password);
+
+			JDownloaderAPIClient client = new JDownloaderAPIClient();
+			JDownloaderAPIClient.ConnectionResult connectionInfo = JDownloaderAPIClient.connect(email, password);
+			client.addAndDownloadLink(connectionInfo, downloadLink);
+
 		} catch ( Exception e ) {
 			throw new RuntimeException ( e );
 		}

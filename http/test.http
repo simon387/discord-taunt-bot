@@ -1,0 +1,3 @@
+GET https://api.jdownloader.org/my/connect?email=simone.celia@simonecelia.it&appkey=asd&signature=defb2cb1b81cd3f6f61ddfa2865825cd7d02ecaab22532f0025db5677b541c9e&rid=1737670195984
+Accept: application/json
+Content-Type: application/json
