@@ -163,16 +163,6 @@ public class JDownloaderAPIClient {
 		return result.toString ();
 	}
 
-	public static void main ( String[] args ) {
-		try {
-			JDownloaderAPIClient client = new JDownloaderAPIClient ();
-			ConnectionResult connectionInfo = connect ( "your_email@example.com", "your_password" );
-			client.addAndDownloadLink ( connectionInfo, "https://example.com/file.zip" );
-		} catch ( Exception e ) {
-			e.printStackTrace ();
-		}
-	}// Add these decryption methods similar to the Python implementation
-
 	private static byte[] decrypt ( byte[] secretToken, String encryptedData ) throws Exception {
 		byte[] initVector = Arrays.copyOfRange ( secretToken, 0, secretToken.length / 2 );
 		byte[] key = Arrays.copyOfRange ( secretToken, secretToken.length / 2, secretToken.length );
