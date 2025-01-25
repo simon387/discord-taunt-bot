@@ -53,9 +53,11 @@ public class JDownloaderClient {
 	public boolean addDownload_ ( String downloadLink ) {
 		try {
 
-			JDownloaderAPIClient client = new JDownloaderAPIClient();
-			JDownloaderAPIClient.ConnectionResult connectionInfo = JDownloaderAPIClient.connect(email, password);
-			client.addAndDownloadLink(connectionInfo, downloadLink);
+//			JDownloaderAPIClient client = new JDownloaderAPIClient();
+//			JDownloaderAPIClient.ConnectionResult connectionInfo = JDownloaderAPIClient.connect(email, password);
+//			client.addAndDownloadLink(connectionInfo, downloadLink);
+			JDownloaderAPIClient2.ConnectionResult result = JDownloaderAPIClient2.connect(email, password);
+			System.out.println("Device ID: " + result.deviceId);
 
 		} catch ( Exception e ) {
 			throw new RuntimeException ( e );
