@@ -1,3 +1,6 @@
+Version 1.5.6
+- banner updated
+
 Version 1.5.5
 - dev mew code to test
 
