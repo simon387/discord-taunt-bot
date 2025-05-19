@@ -1,3 +1,6 @@
+Version 1.5.7
+- changed commands to ignore-case
+
 Version 1.5.6
 - banner updated
 

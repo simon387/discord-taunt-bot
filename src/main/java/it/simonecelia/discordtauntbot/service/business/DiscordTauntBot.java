@@ -34,7 +34,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 			return;
 		}
 		var message = event.getMessage ();
-		var content = message.getContentRaw ().trim ();
+		var content = message.getContentRaw ().trim ().toLowerCase ();
 		Log.infof ( "Got message from: %s, with Content: %s", event.getAuthor (), content );
 
 		switch ( content ) {
