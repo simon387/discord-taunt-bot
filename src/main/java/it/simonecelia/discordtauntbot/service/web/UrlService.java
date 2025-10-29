@@ -14,7 +14,7 @@ public class UrlService {
 			return false;
 		}
 		try {
-			URI uri = new URI ( url );
+			var uri = new URI ( url );
 			return uri.getScheme () != null && ( uri.getScheme ().equals ( "http" ) || uri.getScheme ().equals ( "https" ) );
 		} catch ( URISyntaxException e ) {
 			return false;
