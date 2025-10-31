@@ -2,7 +2,6 @@ package it.simonecelia.discordtauntbot.service.business;
 
 import io.quarkus.logging.Log;
 import it.simonecelia.discordtauntbot.service.audio.AudioPlayerService;
-import it.simonecelia.discordtauntbot.service.download.DownloadService;
 import it.simonecelia.discordtauntbot.service.text.TextSenderService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,9 +17,6 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 
 	@Inject
 	TextSenderService textSender;
-
-	@Inject
-	DownloadService downloadService;
 
 	@PostConstruct
 	public void onStartup () {
@@ -38,7 +34,6 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 		Log.infof ( "Got message from: %s, with Content: %s", event.getAuthor (), content );
 
 		switch ( content ) {
-		case String c when c.startsWith ( "/p " ) || c.startsWith ( "/play " ) -> audioPlayer.playAudio ( event, content, appConfig.isVerbose () );
 		case String c when c.startsWith ( "/tts " ) -> ttsSender.sendTTS ( event, content );
 		case "/stop" -> audioPlayer.stopAudio ( event, appConfig.isVerbose () );
 		case "/tauntlist" -> textSender.sendTauntList ( event );
@@ -60,7 +55,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 			}
 		}
 		case "/guide" -> textSender.sendCraftingGuide ( event );
-		default -> downloadService.attemptDownload ( content );
+		default -> audioPlayer.playAudio ( event, content, appConfig.isVerbose () );//downloadService.attemptDownload ( content );
 		}
 	}
 

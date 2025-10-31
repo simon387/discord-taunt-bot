@@ -1,3 +1,6 @@
+Version 1.5.9
+- changed taunt play mode, now is quicker, no /p or /play command needed
+
 Version 1.5.8
 - code opt
 

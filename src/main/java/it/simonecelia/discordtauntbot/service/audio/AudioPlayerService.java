@@ -40,8 +40,7 @@ public class AudioPlayerService {
 	}
 
 	public void playAudio ( MessageReceivedEvent event, String content, boolean verbose ) {
-		var begindIndex = content.startsWith ( "/p " ) ? 3 : 6;
-		var audioFile = assetDir + content.substring ( begindIndex ).trim () + ".mp3";
+		var audioFile = assetDir + content.trim () + ".mp3";
 		Log.infof ( "Playing: %s", audioFile );
 
 		var voiceChannel = Objects.requireNonNull (
