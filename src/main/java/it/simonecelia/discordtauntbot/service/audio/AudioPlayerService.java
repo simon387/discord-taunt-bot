@@ -76,7 +76,7 @@ public class AudioPlayerService {
 			@Override
 			public void noMatches () {
 				Log.errorf ( "Audio file not found: %s", audioFile );
-				event.getChannel ().sendMessage ( "Audio file not found: " + fileNameWithoutExtension ).queue ();
+				// event.getChannel ().sendMessage ( "Audio file not found: " + fileNameWithoutExtension ).queue ();
 			}
 
 			@Override
