@@ -43,8 +43,22 @@ public class AudioPlayerService {
 		var audioFile = assetDir + content.trim () + ".mp3";
 		Log.infof ( "Playing: %s", audioFile );
 
-		var voiceChannel = Objects.requireNonNull (
-						Objects.requireNonNull ( Objects.requireNonNull ( event.getMember () ).getVoiceState () ).getChannel () ).asVoiceChannel ();
+		var member = event.getMember ();
+		if ( member == null ) {
+			Log.error ( "Message not from a guild (probably a DM)." );
+			event.getChannel ().sendMessage ( "This command can only be used in a server." ).queue ();
+			return;
+		}
+
+		var voiceState = member.getVoiceState ();
+		if ( voiceState == null || voiceState.getChannel () == null ) {
+			Log.warn ( "User is not in a voice channel." );
+			event.getChannel ().sendMessage ( "You need to be in a voice channel to use this command." ).queue ();
+			return;
+		}
+
+		// safe: only reached if user is in a voice channel
+		var voiceChannel = voiceState.getChannel ().asVoiceChannel ();
 		Log.infof ( "voiceChannel id: %s", voiceChannel.getId () );
 
 		var audioManager = event.getGuild ().getAudioManager ();

@@ -1,3 +1,6 @@
+Version 1.5.11
+- Fixed a nullpointer when user want to play audio outside voice channel
+
 Version 1.5.10
 - removed audio not found message
 
