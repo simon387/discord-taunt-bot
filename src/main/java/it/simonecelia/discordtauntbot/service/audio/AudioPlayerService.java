@@ -15,7 +15,6 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
-import java.util.Objects;
 
 
 @ApplicationScoped
