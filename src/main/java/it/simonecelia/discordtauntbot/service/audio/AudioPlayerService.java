@@ -45,14 +45,20 @@ public class AudioPlayerService {
 		var member = event.getMember ();
 		if ( member == null ) {
 			Log.error ( "Message not from a guild (probably a DM)." );
-			event.getChannel ().sendMessage ( "This command can only be used in a server." ).queue ();
+			event.getAuthor ().openPrivateChannel ().queue (
+							privateChannel -> privateChannel.sendMessage ( "This command can only be used in a server." ).queue (),
+							error -> Log.error ( "Cannot send DM to user: " + error.getMessage () )
+			);
 			return;
 		}
 
 		var voiceState = member.getVoiceState ();
 		if ( voiceState == null || voiceState.getChannel () == null ) {
 			Log.warn ( "User is not in a voice channel." );
-			event.getChannel ().sendMessage ( "You need to be in a voice channel to use this command." ).queue ();
+			event.getAuthor ().openPrivateChannel ().queue (
+							privateChannel -> privateChannel.sendMessage ( "You need to be in a voice channel to use this command." ).queue (),
+							error -> Log.error ( "Cannot send DM to user: " + error.getMessage () )
+			);
 			return;
 		}
 
