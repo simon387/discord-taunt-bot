@@ -1,3 +1,6 @@
+Version 1.5.13
+- removed useless warning
+
 Version 1.5.12
 - moved error messages to private chat
 

@@ -55,10 +55,6 @@ public class AudioPlayerService {
 		var voiceState = member.getVoiceState ();
 		if ( voiceState == null || voiceState.getChannel () == null ) {
 			Log.warn ( "User is not in a voice channel." );
-			event.getAuthor ().openPrivateChannel ().queue (
-							privateChannel -> privateChannel.sendMessage ( "You need to be in a voice channel to use this command." ).queue (),
-							error -> Log.error ( "Cannot send DM to user: " + error.getMessage () )
-			);
 			return;
 		}
 
