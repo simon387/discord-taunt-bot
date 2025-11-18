@@ -1,3 +1,6 @@
+Version 1.6.0Alpha
+- added automatic audio recording
+
 Version 1.5.14
 - added version on bot nickname
 

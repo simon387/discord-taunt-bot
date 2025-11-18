@@ -49,3 +49,4 @@ src/main/resources/secret.properties
 assets
 dependency-reduced-pom.xml
 logs/*
+temp.wav

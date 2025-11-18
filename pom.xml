@@ -53,6 +53,12 @@
 			<artifactId>lavaplayer</artifactId>
 			<version>1.3.77</version>
 		</dependency>
+		<!-- per registrare nei canali -->
+		<dependency>
+			<groupId>io.github.jaredmdobson</groupId>
+			<artifactId>concentus</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -117,6 +123,10 @@
 			<id>dv8tion</id>
 			<name>m2-dv8tion</name>
 			<url>https://m2.dv8tion.net/releases</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>https://repo.maven.apache.org/maven2</url>
 		</repository>
 	</repositories>
 
