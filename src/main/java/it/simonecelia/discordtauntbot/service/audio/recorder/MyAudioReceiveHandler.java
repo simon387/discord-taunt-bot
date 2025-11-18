@@ -13,33 +13,24 @@ public class MyAudioReceiveHandler implements AudioReceiveHandler {
 		this.recorder = recorder;
 	}
 
-	/**
-	 * Abilita la ricezione audio utente
-	 */
 	@Override
 	public boolean canReceiveUser () {
 		return true;
 	}
 
-	/**
-	 * Qui riceviamo PCM 48kHz stereo già decodificato
-	 */
 	@Override
 	public void handleUserAudio ( UserAudio userAudio ) {
-		byte[] pcm = userAudio.getAudioData ( 1.0f ); // 1.0 = volume normale
-		recorder.writeToRingBuffer ( pcm );
+		// Scrive direttamente i byte PCM ricevuti da JDA
+		recorder.writeToRingBuffer ( userAudio.getAudioData ( 1.0f ) );
 	}
 
-	/**
-	 * Non riceviamo audio combinato
-	 */
 	@Override
 	public boolean canReceiveCombined () {
 		return false;
 	}
 
 	@Override
-	public void handleCombinedAudio ( net.dv8tion.jda.api.audio.@NotNull CombinedAudio combinedAudio ) {
-		// non usiamo audio combinato
+	public void handleCombinedAudio ( @NotNull net.dv8tion.jda.api.audio.CombinedAudio combinedAudio ) {
+		// Non usiamo audio combinato
 	}
 }
