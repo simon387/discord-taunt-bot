@@ -34,10 +34,18 @@ public class MyAudioReceiveHandler implements AudioReceiveHandler {
 		// getAudioData(1.0f) restituisce PCM signed 16-bit little-endian stereo a 48kHz
 		byte[] audio = combinedAudio.getAudioData(1.0f);
 
-		// DEBUG: stampa ogni tanto
+		// DEBUG: verifica il contenuto audio
 		if (System.currentTimeMillis() % 5000 < 100) {
-			System.out.println("Combined audio chunk: " + audio.length + " bytes, first bytes: " +
-							audio[0] + ", " + audio[1] + ", " + audio[2]);
+			// Calcola il volume RMS per verificare se c'è davvero audio
+			long sum = 0;
+			for (int i = 0; i < audio.length - 1; i += 2) {
+				short sample = (short) ((audio[i + 1] << 8) | (audio[i] & 0xFF));
+				sum += Math.abs(sample);
+			}
+			long avg = sum / (audio.length / 2);
+
+			System.out.println("Combined audio chunk: " + audio.length + " bytes, avg amplitude: " + avg +
+							", first bytes: " + audio[0] + ", " + audio[1] + ", " + audio[2]);
 		}
 
 		recorder.writeToRingBuffer(audio);
