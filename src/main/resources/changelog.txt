@@ -1,3 +1,8 @@
+Version 1.6.3
+- update readme, linux setup section
+- fixed log files
+- translated comments
+
 Version 1.6.2
 - changed write to disk on audio file
 

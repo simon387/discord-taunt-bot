@@ -27,21 +27,21 @@ public class AudioReceiveHandler implements net.dv8tion.jda.api.audio.AudioRecei
 
 	@Override
 	public void handleCombinedAudio ( @NotNull CombinedAudio combinedAudio ) {
-		// Volume normale
+		// Normal volume
 		var audio = combinedAudio.getAudioData ( 1.0f );
 
-		// DEBUG migliorato: calcola volume effettivo
+		// Improved DEBUG: calculate actual volume
 		long now = System.currentTimeMillis ();
 		if ( now - lastDebugTime > 5000 ) {
 			lastDebugTime = now;
 
-			// Calcola il volume RMS dell'audio
+			// Calculate RMS volume of the audio
 			long sumSquares = 0;
 			var samples = 0;
 
 			for ( var i = 0; i < Math.min ( audio.length, 3840 ); i += 2 ) {
 				if ( i + 1 < audio.length ) {
-					// Leggi sample 16-bit little-endian
+					// Read 16-bit little-endian sample
 					var sample = (short) ( ( ( audio[i + 1] & 0xFF ) << 8 ) | ( audio[i] & 0xFF ) );
 					sumSquares += (long) sample * sample;
 					samples++;

@@ -24,7 +24,7 @@ public class AudioRecorderRingBufferService {
 
 	private static final int BYTES_PER_SECOND = SAMPLE_RATE * FRAME_SIZE;
 
-	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 ora
+	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 hour
 
 	private final byte[] ringBuffer = new byte[BUFFER_SIZE];
 
@@ -34,7 +34,7 @@ public class AudioRecorderRingBufferService {
 
 	private final File output;
 
-	// Contatori per debug
+	// Counters for debug
 	private long totalBytesWritten = 0;
 
 	private long lastLogTime = System.currentTimeMillis ();
@@ -49,23 +49,23 @@ public class AudioRecorderRingBufferService {
 	}
 
 	/**
-	 * Scrive i chunk interi nel ring buffer
+	 * Writes audio chunks into the ring buffer.
 	 */
 	public synchronized void writeToRingBuffer ( byte[] pcm ) {
 		if ( pcm == null || pcm.length == 0 ) {
 			return;
 		}
 
-		// Log periodico per debug
+		// Periodic debug log
 		totalBytesWritten += pcm.length;
 		var now = System.currentTimeMillis ();
-		if ( now - lastLogTime > 30000 ) { // Log ogni 30 secondi
+		if ( now - lastLogTime > 30000 ) { // Log every 30 seconds
 			Log.infof ( "[Recorder] Tot bytes received: %d (%.2f MB), chunk size: %d",
 							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length );
 			lastLogTime = now;
 		}
 
-		// Copia l'intero chunk
+		// Copy entire chunk
 		var remaining = pcm.length;
 		int offset = 0;
 
@@ -88,7 +88,7 @@ public class AudioRecorderRingBufferService {
 	}
 
 	/**
-	 * Salva l'ultima ora di audio in WAV
+	 * Saves the last hour of audio to WAV.
 	 */
 	public synchronized void saveLastHourToWav () {
 		try {
@@ -109,7 +109,7 @@ public class AudioRecorderRingBufferService {
 				System.arraycopy ( ringBuffer, writePos, audioData, 0, endChunk );
 				System.arraycopy ( ringBuffer, 0, audioData, endChunk, writePos );
 			} else {
-				// Allinea alla dimensione del frame per evitare frame parziali
+				// Align to frame size to avoid partial frames
 				dataLength = ( writePos / FRAME_SIZE ) * FRAME_SIZE;
 				audioData = new byte[dataLength];
 				System.arraycopy ( ringBuffer, 0, audioData, 0, dataLength );
@@ -120,7 +120,7 @@ public class AudioRecorderRingBufferService {
 
 			writeWavFile ( audioData );
 
-			// Verifica che il file esista e abbia contenuto
+			// Verify file exists and has content
 			if ( output.exists () ) {
 				Log.infof ( "[Recorder] ✓ File saved successfully: %s (%.2f MB)",
 								output.getAbsolutePath (), output.length () / 1024.0 / 1024.0 );
@@ -129,22 +129,24 @@ public class AudioRecorderRingBufferService {
 			}
 
 		} catch ( Exception e ) {
-			Log.errorf ( e, "[Recorder] Error saving WAV to %s", output.getAbsolutePath () ); // ⬅️ Includi lo stacktrace
+			Log.errorf ( e, "[Recorder] Error saving WAV to %s", output.getAbsolutePath () ); // ⬅️ Include stacktrace
 		}
 	}
 
 	/**
-	 * Salva file RAW PCM per test con Audacity
-	private void saveRawPCM ( byte[] audioData ) {
-		try {
-			File rawFile = new File ( output.getParent (), "test_raw.pcm" );
-			java.nio.file.Files.write ( rawFile.toPath (), audioData );
-			Log.infof ( "[Recorder] Saved RAW PCM to: %s (import in Audacity: File > Import > Raw Data, 48000Hz, 16-bit PCM signed, little-endian, stereo)",
-							rawFile.getAbsolutePath () );
-		} catch ( Exception e ) {
-			Log.error ( "[Recorder] Error saving RAW PCM", e );
-		}
-	}*/
+	 * Saves RAW PCM for testing with Audacity.
+	 * <p>
+	 * private void saveRawPCM ( byte[] audioData ) {
+	 * try {
+	 * File rawFile = new File ( output.getParent (), "test_raw.pcm" );
+	 * java.nio.file.Files.write ( rawFile.toPath (), audioData );
+	 * Log.infof ( "[Recorder] Saved RAW PCM to: %s (import in Audacity: File > Import > Raw Data, 48000Hz, 16-bit PCM signed, little-endian, stereo)",
+	 * rawFile.getAbsolutePath () );
+	 * } catch ( Exception e ) {
+	 * Log.error ( "[Recorder] Error saving RAW PCM", e );
+	 * }
+	 * }
+	 */
 
 	private void writeWavFile ( byte[] audioData ) throws Exception {
 		var format = new AudioFormat (
@@ -167,7 +169,7 @@ public class AudioRecorderRingBufferService {
 
 			AudioSystem.write ( ais, AudioFileFormat.Type.WAVE, output );
 
-			// Verifica immediata dopo la scrittura
+			// Immediate check after writing
 			if ( !output.exists () ) {
 				throw new Exception ( "File was not created: " + output.getAbsolutePath () );
 			}
