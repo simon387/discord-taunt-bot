@@ -28,7 +28,7 @@ public class AudioReceiveHandler implements net.dv8tion.jda.api.audio.AudioRecei
 	@Override
 	public void handleCombinedAudio ( @NotNull CombinedAudio combinedAudio ) {
 		// Volume normale
-		byte[] audio = combinedAudio.getAudioData ( 1.0f );
+		var audio = combinedAudio.getAudioData ( 1.0f );
 
 		// DEBUG migliorato: calcola volume effettivo
 		long now = System.currentTimeMillis ();
@@ -37,7 +37,7 @@ public class AudioReceiveHandler implements net.dv8tion.jda.api.audio.AudioRecei
 
 			// Calcola il volume RMS dell'audio
 			long sumSquares = 0;
-			int samples = 0;
+			var samples = 0;
 
 			for ( var i = 0; i < Math.min ( audio.length, 3840 ); i += 2 ) {
 				if ( i + 1 < audio.length ) {
@@ -48,8 +48,8 @@ public class AudioReceiveHandler implements net.dv8tion.jda.api.audio.AudioRecei
 				}
 			}
 
-			double rms = samples > 0 ? Math.sqrt ( (double) sumSquares / samples ) : 0;
-			double dbFS = 20 * Math.log10 ( rms / 32768.0 ); // dBFS (0 = max volume)
+			var rms = samples > 0 ? Math.sqrt ( (double) sumSquares / samples ) : 0;
+			var dbFS = 20 * Math.log10 ( rms / 32768.0 ); // dBFS (0 = max volume)
 
 			Log.debugf ( "Combined audio: %d bytes, RMS: %.0f, Volume: %.1f dBFS, first bytes: %d, %d, %d%n",
 							audio.length, rms, dbFS, audio[0], audio[1], audio[2] );

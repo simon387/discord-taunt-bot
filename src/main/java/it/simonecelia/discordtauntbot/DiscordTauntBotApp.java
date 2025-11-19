@@ -57,7 +57,7 @@ public final class DiscordTauntBotApp {
 				}
 			}
 		}
-		final String finalVersionInfo = " " + versionInfo.replaceFirst ( "Version ", "v" );
+		final var finalVersionInfo = " " + versionInfo.replaceFirst ( "Version ", "v" );
 		jda.getGuilds ().forEach ( guild -> guild.modifyNickname ( guild.getSelfMember (), "TauntBot" + finalVersionInfo ).queue (
 						success -> Log.infof ( "Nickname changed in guild %s with %s", guild.getName (), finalVersionInfo ),
 						error -> Log.warnf ( "Could not change nickname in guild %s: %s", guild.getName (), error.getMessage () )

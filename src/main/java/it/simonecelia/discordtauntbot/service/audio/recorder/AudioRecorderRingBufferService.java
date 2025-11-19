@@ -9,7 +9,6 @@ import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
@@ -42,7 +41,7 @@ public class AudioRecorderRingBufferService {
 
 	public AudioRecorderRingBufferService ( String outputName ) {
 		this.output = new File ( outputName );
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor ();
+		var scheduler = Executors.newSingleThreadScheduledExecutor ();
 		scheduler.scheduleAtFixedRate ( this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES );
 		Log.infof ( "[Recorder] Recording file name: %s", output.getName () );
 		Log.infof ( "[Recorder] Buffer size: %d bytes (%.2f MB)", BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0 );
@@ -59,20 +58,20 @@ public class AudioRecorderRingBufferService {
 
 		// Log periodico per debug
 		totalBytesWritten += pcm.length;
-		long now = System.currentTimeMillis ();
+		var now = System.currentTimeMillis ();
 		if ( now - lastLogTime > 30000 ) { // Log ogni 30 secondi
-			Log.infof ( "[Recorder] Total bytes received: %d (%.2f MB), chunk size: %d",
+			Log.infof ( "[Recorder] Tot bytes received: %d (%.2f MB), chunk size: %d",
 							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length );
 			lastLogTime = now;
 		}
 
 		// Copia l'intero chunk
-		int remaining = pcm.length;
+		var remaining = pcm.length;
 		int offset = 0;
 
 		while ( remaining > 0 ) {
-			int spaceToEnd = ringBuffer.length - writePos;
-			int toCopy = Math.min ( remaining, spaceToEnd );
+			var spaceToEnd = ringBuffer.length - writePos;
+			var toCopy = Math.min ( remaining, spaceToEnd );
 
 			System.arraycopy ( pcm, offset, ringBuffer, writePos, toCopy );
 
@@ -104,7 +103,7 @@ public class AudioRecorderRingBufferService {
 			if ( bufferFilledOnce ) {
 				audioData = new byte[BUFFER_SIZE];
 				dataLength = BUFFER_SIZE;
-				int endChunk = BUFFER_SIZE - writePos;
+				var endChunk = BUFFER_SIZE - writePos;
 				System.arraycopy ( ringBuffer, writePos, audioData, 0, endChunk );
 				System.arraycopy ( ringBuffer, 0, audioData, endChunk, writePos );
 			} else {
@@ -131,7 +130,6 @@ public class AudioRecorderRingBufferService {
 
 	/**
 	 * Salva file RAW PCM per test con Audacity
-	 */
 	private void saveRawPCM ( byte[] audioData ) {
 		try {
 			File rawFile = new File ( output.getParent (), "test_raw.pcm" );
@@ -141,7 +139,7 @@ public class AudioRecorderRingBufferService {
 		} catch ( Exception e ) {
 			Log.error ( "[Recorder] Error saving RAW PCM", e );
 		}
-	}
+	}*/
 
 	private void writeWavFile ( byte[] audioData ) throws Exception {
 		// IMPORTANTE: Ora usiamo BIG-ENDIAN perché abbiamo convertito i dati
