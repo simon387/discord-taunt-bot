@@ -1,4 +1,4 @@
-Version 1.6.0Alpha
+Version 1.6.0
 - added automatic audio recording
 
 Version 1.5.14
