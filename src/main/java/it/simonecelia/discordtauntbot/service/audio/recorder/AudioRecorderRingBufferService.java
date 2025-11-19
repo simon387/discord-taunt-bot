@@ -8,6 +8,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +42,7 @@ public class AudioRecorderRingBufferService {
 	}
 
 	/**
-	 * CORRETTO: Scrive i chunk interi invece di byte-per-byte
+	 * Scrive i chunk interi nel ring buffer
 	 */
 	public synchronized void writeToRingBuffer(byte[] pcm) {
 		if (pcm == null || pcm.length == 0) {
@@ -56,7 +58,7 @@ public class AudioRecorderRingBufferService {
 			lastLogTime = now;
 		}
 
-		// OTTIMIZZATO: Copia l'intero chunk invece di byte-per-byte
+		// Copia l'intero chunk
 		int remaining = pcm.length;
 		int offset = 0;
 
@@ -107,7 +109,10 @@ public class AudioRecorderRingBufferService {
 			Log.infof("[Recorder] Saving %d bytes (%.2f seconds) to WAV",
 							dataLength, (double) dataLength / BYTES_PER_SECOND);
 
-			writeWavFile(audioData);
+			// FIX: Converti da little-endian a big-endian per Java Sound API
+			byte[] convertedData = convertLittleEndianToBigEndian(audioData);
+
+			writeWavFile(convertedData);
 			Log.infof("[Recorder] Saved to: %s (%.2f MB)",
 							output.getAbsolutePath(), output.length() / 1024.0 / 1024.0);
 		} catch (Exception e) {
@@ -115,8 +120,26 @@ public class AudioRecorderRingBufferService {
 		}
 	}
 
+	/**
+	 * Converte l'audio da little-endian (JDA) a big-endian (Java Sound)
+	 */
+	private byte[] convertLittleEndianToBigEndian(byte[] littleEndianData) {
+		byte[] bigEndianData = new byte[littleEndianData.length];
+
+		// Converti ogni sample 16-bit
+		for (int i = 0; i < littleEndianData.length; i += 2) {
+			// Little-endian: byte basso prima, byte alto dopo
+			// Big-endian: byte alto prima, byte basso dopo
+			bigEndianData[i] = littleEndianData[i + 1];     // byte alto
+			bigEndianData[i + 1] = littleEndianData[i];     // byte basso
+		}
+
+		Log.info("[Recorder] Converted audio from little-endian to big-endian");
+		return bigEndianData;
+	}
+
 	private void writeWavFile(byte[] audioData) throws Exception {
-		// JDA fornisce audio in little-endian PCM signed 16-bit stereo a 48kHz
+		// IMPORTANTE: Ora usiamo BIG-ENDIAN perché abbiamo convertito i dati
 		var format = new AudioFormat(
 						AudioFormat.Encoding.PCM_SIGNED,  // Encoding
 						SAMPLE_RATE,                       // Sample rate
@@ -124,7 +147,7 @@ public class AudioRecorderRingBufferService {
 						CHANNELS,                          // Channels
 						FRAME_SIZE,                        // Frame size
 						SAMPLE_RATE,                       // Frame rate
-						false                              // Little-endian (false = little-endian)
+						true                               // BIG-ENDIAN (true = big-endian)
 		);
 
 		Log.infof("[Recorder] Audio format: %s", format);

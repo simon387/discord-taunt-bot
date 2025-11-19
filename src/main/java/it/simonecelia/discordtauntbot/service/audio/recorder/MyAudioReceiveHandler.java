@@ -28,8 +28,8 @@ public class MyAudioReceiveHandler implements AudioReceiveHandler {
 
 	@Override
 	public void handleCombinedAudio(@NotNull CombinedAudio combinedAudio) {
-		// Prova con volume amplificato (2.0 = 200% volume)
-		byte[] audio = combinedAudio.getAudioData(2.0f);
+		// Volume normale
+		byte[] audio = combinedAudio.getAudioData(1.0f);
 
 		// DEBUG migliorato: calcola volume effettivo
 		long now = System.currentTimeMillis();
