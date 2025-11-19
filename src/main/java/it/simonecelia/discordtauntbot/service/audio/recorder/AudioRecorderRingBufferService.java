@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 public class AudioRecorderRingBufferService {
 
 	private static final int SAMPLE_RATE = 48000;
@@ -34,14 +33,14 @@ public class AudioRecorderRingBufferService {
 
 	public AudioRecorderRingBufferService(String outputName) {
 		this.output = new File(outputName);
-		scheduler.scheduleAtFixedRate(this::saveLastHourToWav, 1, 1, TimeUnit.MINUTES);
+		scheduler.scheduleAtFixedRate(this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES);
 		Log.infof("[Recorder] Recording file name: %s", output.getName());
 		Log.infof("[Recorder] Buffer size: %d bytes (%.2f MB)", BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0);
 		Log.infof("[Recorder] Expected format: %d Hz, %d channels, %d-bit", SAMPLE_RATE, CHANNELS, BYTES_PER_SAMPLE * 8);
 	}
 
 	/**
-	 * Scrive i byte PCM ricevuti da JDA nel buffer circolare
+	 * CORRETTO: Scrive i chunk interi invece di byte-per-byte
 	 */
 	public synchronized void writeToRingBuffer(byte[] pcm) {
 		if (pcm == null || pcm.length == 0) {
@@ -57,8 +56,20 @@ public class AudioRecorderRingBufferService {
 			lastLogTime = now;
 		}
 
-		for (byte b : pcm) {
-			ringBuffer[writePos++] = b;
+		// OTTIMIZZATO: Copia l'intero chunk invece di byte-per-byte
+		int remaining = pcm.length;
+		int offset = 0;
+
+		while (remaining > 0) {
+			int spaceToEnd = ringBuffer.length - writePos;
+			int toCopy = Math.min(remaining, spaceToEnd);
+
+			System.arraycopy(pcm, offset, ringBuffer, writePos, toCopy);
+
+			writePos += toCopy;
+			offset += toCopy;
+			remaining -= toCopy;
+
 			if (writePos >= ringBuffer.length) {
 				writePos = 0;
 				bufferFilledOnce = true;
@@ -94,7 +105,7 @@ public class AudioRecorderRingBufferService {
 			}
 
 			Log.infof("[Recorder] Saving %d bytes (%.2f seconds) to WAV",
-							dataLength, (double)dataLength / BYTES_PER_SECOND);
+							dataLength, (double) dataLength / BYTES_PER_SECOND);
 
 			writeWavFile(audioData);
 			Log.infof("[Recorder] Saved to: %s (%.2f MB)",
