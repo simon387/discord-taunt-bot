@@ -92,6 +92,8 @@ public class AudioRecorderRingBufferService {
 	 */
 	public synchronized void saveLastHourToWav () {
 		try {
+			Log.infof ( "[Recorder] Starting save operation to: %s", output.getAbsolutePath () );
+
 			if ( writePos == 0 && !bufferFilledOnce ) {
 				Log.warn ( "[Recorder] No audio data to save yet" );
 				return;
@@ -116,15 +118,18 @@ public class AudioRecorderRingBufferService {
 			Log.infof ( "[Recorder] Saving %d bytes (%.2f seconds) to WAV",
 							dataLength, (double) dataLength / BYTES_PER_SECOND );
 
-			// TEST: Salva anche versione RAW per debug
-			// saveRawPCM ( audioData );
-
-			// Prova SENZA conversione endianness (lascia little-endian originale)
 			writeWavFile ( audioData );
-			Log.infof ( "[Recorder] Saved to: %s (%.2f MB)",
-							output.getAbsolutePath (), output.length () / 1024.0 / 1024.0 );
+
+			// Verifica che il file esista e abbia contenuto
+			if ( output.exists () ) {
+				Log.infof ( "[Recorder] ✓ File saved successfully: %s (%.2f MB)",
+								output.getAbsolutePath (), output.length () / 1024.0 / 1024.0 );
+			} else {
+				Log.errorf ( "[Recorder] ✗ File does not exist after write: %s", output.getAbsolutePath () );
+			}
+
 		} catch ( Exception e ) {
-			Log.error ( "[Recorder] Error saving WAV", e );
+			Log.errorf ( e, "[Recorder] Error saving WAV to %s", output.getAbsolutePath () ); // ⬅️ Includi lo stacktrace
 		}
 	}
 
@@ -142,24 +147,32 @@ public class AudioRecorderRingBufferService {
 	}*/
 
 	private void writeWavFile ( byte[] audioData ) throws Exception {
-		// IMPORTANTE: Ora usiamo BIG-ENDIAN perché abbiamo convertito i dati
 		var format = new AudioFormat (
-						AudioFormat.Encoding.PCM_SIGNED,  // Encoding
-						SAMPLE_RATE,                       // Sample rate
-						16,                                // Bits per sample
-						CHANNELS,                          // Channels
-						FRAME_SIZE,                        // Frame size
-						SAMPLE_RATE,                       // Frame rate
-						true                               // BIG-ENDIAN (true = big-endian)
+						AudioFormat.Encoding.PCM_SIGNED,
+						SAMPLE_RATE,
+						16,
+						CHANNELS,
+						FRAME_SIZE,
+						SAMPLE_RATE,
+						true
 		);
 
 		Log.infof ( "[Recorder] Audio format: %s", format );
+		Log.infof ( "[Recorder] Writing to file: %s", output.getAbsolutePath () );
 
 		long lengthInFrames = audioData.length / format.getFrameSize ();
 
 		try ( var bais = new ByteArrayInputStream ( audioData );
 						var ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
+
 			AudioSystem.write ( ais, AudioFileFormat.Type.WAVE, output );
+
+			// Verifica immediata dopo la scrittura
+			if ( !output.exists () ) {
+				throw new Exception ( "File was not created: " + output.getAbsolutePath () );
+			}
+
+			Log.infof ( "[Recorder] Write completed, file size: %d bytes", output.length () );
 		}
 	}
 

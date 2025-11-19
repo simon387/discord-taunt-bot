@@ -1,3 +1,6 @@
+Version 1.6.2
+- changed write to disk on audio file
+
 Version 1.6.1
 - opt logs
 - opt code variables and smell codes
