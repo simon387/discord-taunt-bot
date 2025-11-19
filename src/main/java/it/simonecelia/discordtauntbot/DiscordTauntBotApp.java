@@ -57,9 +57,9 @@ public final class DiscordTauntBotApp {
 				}
 			}
 		}
-		final var finalVersionInfo = " " + versionInfo.replaceFirst ( "Version ", "v" );
-		jda.getGuilds ().forEach ( guild -> guild.modifyNickname ( guild.getSelfMember (), "TauntBot" + finalVersionInfo ).queue (
-						success -> Log.infof ( "Nickname changed in guild %s with %s", guild.getName (), finalVersionInfo ),
+		final var nickname = "TauntBot " + versionInfo.replaceFirst ( "Version ", "v" );
+		jda.getGuilds ().forEach ( guild -> guild.modifyNickname ( guild.getSelfMember (), nickname ).queue (
+						success -> Log.infof ( "Nickname changed in guild %s with %s", guild.getName (), nickname ),
 						error -> Log.warnf ( "Could not change nickname in guild %s: %s", guild.getName (), error.getMessage () )
 		) );
 	}
