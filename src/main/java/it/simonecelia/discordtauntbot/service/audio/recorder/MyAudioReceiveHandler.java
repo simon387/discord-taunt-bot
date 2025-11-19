@@ -5,12 +5,12 @@ import net.dv8tion.jda.api.audio.CombinedAudio;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * SOLUZIONE: Usa l'audio COMBINATO invece di quello per-utente
- * Questo mixa automaticamente tutti gli utenti in un unico stream PCM
+ * SOLUZIONE ALTERNATIVA: Tenta di ottenere più volume/qualità
  */
 public class MyAudioReceiveHandler implements AudioReceiveHandler {
 
 	private final AudioRecorderRingBufferService recorder;
+	private long lastDebugTime = 0;
 
 	public MyAudioReceiveHandler(AudioRecorderRingBufferService recorder) {
 		this.recorder = recorder;
@@ -18,34 +18,42 @@ public class MyAudioReceiveHandler implements AudioReceiveHandler {
 
 	@Override
 	public boolean canReceiveUser() {
-		// Disabilita la ricezione per utente
 		return false;
 	}
 
 	@Override
 	public boolean canReceiveCombined() {
-		// Abilita la ricezione dell'audio combinato
 		return true;
 	}
 
 	@Override
 	public void handleCombinedAudio(@NotNull CombinedAudio combinedAudio) {
-		// Ottieni l'audio già mixato da JDA
-		// getAudioData(1.0f) restituisce PCM signed 16-bit little-endian stereo a 48kHz
-		byte[] audio = combinedAudio.getAudioData(1.0f);
+		// Prova con volume amplificato (2.0 = 200% volume)
+		byte[] audio = combinedAudio.getAudioData(2.0f);
 
-		// DEBUG: verifica il contenuto audio
-		if (System.currentTimeMillis() % 5000 < 100) {
-			// Calcola il volume RMS per verificare se c'è davvero audio
-			long sum = 0;
-			for (int i = 0; i < audio.length - 1; i += 2) {
-				short sample = (short) ((audio[i + 1] << 8) | (audio[i] & 0xFF));
-				sum += Math.abs(sample);
+		// DEBUG migliorato: calcola volume effettivo
+		long now = System.currentTimeMillis();
+		if (now - lastDebugTime > 5000) {
+			lastDebugTime = now;
+
+			// Calcola il volume RMS dell'audio
+			long sumSquares = 0;
+			int samples = 0;
+
+			for (int i = 0; i < Math.min(audio.length, 3840); i += 2) {
+				if (i + 1 < audio.length) {
+					// Leggi sample 16-bit little-endian
+					short sample = (short) (((audio[i + 1] & 0xFF) << 8) | (audio[i] & 0xFF));
+					sumSquares += (long) sample * sample;
+					samples++;
+				}
 			}
-			long avg = sum / (audio.length / 2);
 
-			System.out.println("Combined audio chunk: " + audio.length + " bytes, avg amplitude: " + avg +
-							", first bytes: " + audio[0] + ", " + audio[1] + ", " + audio[2]);
+			double rms = samples > 0 ? Math.sqrt((double) sumSquares / samples) : 0;
+			double dbFS = 20 * Math.log10(rms / 32768.0); // dBFS (0 = max volume)
+
+			System.out.printf("Combined audio: %d bytes, RMS: %.0f, Volume: %.1f dBFS, first bytes: %d, %d, %d%n",
+							audio.length, rms, dbFS, audio[0], audio[1], audio[2]);
 		}
 
 		recorder.writeToRingBuffer(audio);
