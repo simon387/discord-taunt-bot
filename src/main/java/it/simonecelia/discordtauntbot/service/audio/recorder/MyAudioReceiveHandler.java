@@ -19,9 +19,16 @@ public class MyAudioReceiveHandler implements AudioReceiveHandler {
 	}
 
 	@Override
-	public void handleUserAudio ( UserAudio userAudio ) {
-		// Scrive direttamente i byte PCM ricevuti da JDA
-		recorder.writeToRingBuffer ( userAudio.getAudioData ( 1.0f ) );
+	public void handleUserAudio(UserAudio userAudio) {
+		byte[] audio = userAudio.getAudioData(1.0f);
+
+		// DEBUG: stampa ogni tanto
+		if (System.currentTimeMillis() % 5000 < 100) {
+			System.out.println("Audio chunk: " + audio.length + " bytes, first bytes: " +
+							audio[0] + ", " + audio[1] + ", " + audio[2]);
+		}
+
+		recorder.writeToRingBuffer(audio);
 	}
 
 	@Override

@@ -16,9 +16,10 @@ import java.util.concurrent.TimeUnit;
 public class AudioRecorderRingBufferService {
 
 	private static final int SAMPLE_RATE = 48000;
-	private static final int CHANNELS = 2; // Stereo - JDA fornisce audio stereo
-	private static final int BYTES_PER_SAMPLE = 2;
-	private static final int BYTES_PER_SECOND = SAMPLE_RATE * CHANNELS * BYTES_PER_SAMPLE;
+	private static final int CHANNELS = 2; // Stereo
+	private static final int BYTES_PER_SAMPLE = 2; // 16-bit = 2 bytes
+	private static final int FRAME_SIZE = CHANNELS * BYTES_PER_SAMPLE; // 4 bytes per frame
+	private static final int BYTES_PER_SECOND = SAMPLE_RATE * FRAME_SIZE;
 	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 ora
 
 	private final byte[] ringBuffer = new byte[BUFFER_SIZE];
@@ -27,21 +28,41 @@ public class AudioRecorderRingBufferService {
 	private final File output;
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+	// Contatori per debug
+	private long totalBytesWritten = 0;
+	private long lastLogTime = System.currentTimeMillis();
+
 	public AudioRecorderRingBufferService(String outputName) {
 		this.output = new File(outputName);
-		scheduler.scheduleAtFixedRate(this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES);
+		scheduler.scheduleAtFixedRate(this::saveLastHourToWav, 1, 1, TimeUnit.MINUTES);
 		Log.infof("[Recorder] Recording file name: %s", output.getName());
+		Log.infof("[Recorder] Buffer size: %d bytes (%.2f MB)", BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0);
+		Log.infof("[Recorder] Expected format: %d Hz, %d channels, %d-bit", SAMPLE_RATE, CHANNELS, BYTES_PER_SAMPLE * 8);
 	}
 
 	/**
 	 * Scrive i byte PCM ricevuti da JDA nel buffer circolare
 	 */
 	public synchronized void writeToRingBuffer(byte[] pcm) {
+		if (pcm == null || pcm.length == 0) {
+			return;
+		}
+
+		// Log periodico per debug
+		totalBytesWritten += pcm.length;
+		long now = System.currentTimeMillis();
+		if (now - lastLogTime > 30000) { // Log ogni 30 secondi
+			Log.infof("[Recorder] Total bytes received: %d (%.2f MB), chunk size: %d",
+							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length);
+			lastLogTime = now;
+		}
+
 		for (byte b : pcm) {
 			ringBuffer[writePos++] = b;
 			if (writePos >= ringBuffer.length) {
 				writePos = 0;
 				bufferFilledOnce = true;
+				Log.info("[Recorder] Ring buffer wrapped around");
 			}
 		}
 	}
@@ -51,32 +72,56 @@ public class AudioRecorderRingBufferService {
 	 */
 	public synchronized void saveLastHourToWav() {
 		try {
+			if (writePos == 0 && !bufferFilledOnce) {
+				Log.warn("[Recorder] No audio data to save yet");
+				return;
+			}
+
 			byte[] audioData;
+			int dataLength;
 
 			if (bufferFilledOnce) {
 				audioData = new byte[BUFFER_SIZE];
+				dataLength = BUFFER_SIZE;
 				int endChunk = BUFFER_SIZE - writePos;
 				System.arraycopy(ringBuffer, writePos, audioData, 0, endChunk);
 				System.arraycopy(ringBuffer, 0, audioData, endChunk, writePos);
 			} else {
-				audioData = new byte[writePos];
-				System.arraycopy(ringBuffer, 0, audioData, 0, writePos);
+				// Allinea alla dimensione del frame per evitare frame parziali
+				dataLength = (writePos / FRAME_SIZE) * FRAME_SIZE;
+				audioData = new byte[dataLength];
+				System.arraycopy(ringBuffer, 0, audioData, 0, dataLength);
 			}
 
+			Log.infof("[Recorder] Saving %d bytes (%.2f seconds) to WAV",
+							dataLength, (double)dataLength / BYTES_PER_SECOND);
+
 			writeWavFile(audioData);
-			Log.info("[Recorder] Saved last hour to WAV");
+			Log.infof("[Recorder] Saved to: %s (%.2f MB)",
+							output.getAbsolutePath(), output.length() / 1024.0 / 1024.0);
 		} catch (Exception e) {
 			Log.error("[Recorder] Error saving WAV", e);
 		}
 	}
 
 	private void writeWavFile(byte[] audioData) throws Exception {
-		// AudioFormat: 48 kHz, 16-bit, stereo, signed, LITTLE-ENDIAN
-		// JDA fornisce audio in little-endian, quindi l'ultimo parametro deve essere false
-		var format = new AudioFormat(SAMPLE_RATE, 16, CHANNELS, true, false);
+		// JDA fornisce audio in little-endian PCM signed 16-bit stereo a 48kHz
+		var format = new AudioFormat(
+						AudioFormat.Encoding.PCM_SIGNED,  // Encoding
+						SAMPLE_RATE,                       // Sample rate
+						16,                                // Bits per sample
+						CHANNELS,                          // Channels
+						FRAME_SIZE,                        // Frame size
+						SAMPLE_RATE,                       // Frame rate
+						false                              // Little-endian (false = little-endian)
+		);
+
+		Log.infof("[Recorder] Audio format: %s", format);
+
+		long lengthInFrames = audioData.length / format.getFrameSize();
 
 		try (var bais = new ByteArrayInputStream(audioData);
-						var ais = new AudioInputStream(bais, format, audioData.length / format.getFrameSize())) {
+						var ais = new AudioInputStream(bais, format, lengthInFrames)) {
 			AudioSystem.write(ais, AudioFileFormat.Type.WAVE, output);
 		}
 	}
@@ -84,6 +129,9 @@ public class AudioRecorderRingBufferService {
 	public void shutdown() {
 		scheduler.shutdown();
 		try {
+			// Salva prima di chiudere
+			saveLastHourToWav();
+
 			if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
 				scheduler.shutdownNow();
 			}
