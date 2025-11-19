@@ -109,14 +109,29 @@ public class AudioRecorderRingBufferService {
 			Log.infof("[Recorder] Saving %d bytes (%.2f seconds) to WAV",
 							dataLength, (double) dataLength / BYTES_PER_SECOND);
 
-			// FIX: Converti da little-endian a big-endian per Java Sound API
-			byte[] convertedData = convertLittleEndianToBigEndian(audioData);
+			// TEST: Salva anche versione RAW per debug
+			saveRawPCM(audioData);
 
-			writeWavFile(convertedData);
+			// Prova SENZA conversione endianness (lascia little-endian originale)
+			writeWavFile(audioData);
 			Log.infof("[Recorder] Saved to: %s (%.2f MB)",
 							output.getAbsolutePath(), output.length() / 1024.0 / 1024.0);
 		} catch (Exception e) {
 			Log.error("[Recorder] Error saving WAV", e);
+		}
+	}
+
+	/**
+	 * Salva file RAW PCM per test con Audacity
+	 */
+	private void saveRawPCM(byte[] audioData) {
+		try {
+			File rawFile = new File(output.getParent(), "test_raw.pcm");
+			java.nio.file.Files.write(rawFile.toPath(), audioData);
+			Log.infof("[Recorder] Saved RAW PCM to: %s (import in Audacity: File > Import > Raw Data, 48000Hz, 16-bit PCM signed, little-endian, stereo)",
+							rawFile.getAbsolutePath());
+		} catch (Exception e) {
+			Log.error("[Recorder] Error saving RAW PCM", e);
 		}
 	}
 
