@@ -50,3 +50,4 @@ assets
 dependency-reduced-pom.xml
 logs/*
 temp.wav
+*.tmp

@@ -1,3 +1,6 @@
+Version 1.6.5
+- changed write to disk algorithm
+
 Version 1.6.4
 - fixed log
 

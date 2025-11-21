@@ -8,6 +8,9 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -41,9 +44,13 @@ public class AudioRecorderRingBufferService {
 
 	public AudioRecorderRingBufferService ( String outputName ) {
 		this.output = new File ( outputName );
+		// Ensure parent directory exists
+		if ( output.getParentFile () != null && !output.getParentFile ().exists () ) {
+			output.getParentFile ().mkdirs ();
+		}
 		var scheduler = Executors.newSingleThreadScheduledExecutor ();
 		scheduler.scheduleAtFixedRate ( this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES );
-		Log.infof ( "[Recorder] Recording file name: %s", output.getName () );
+		Log.infof ( "[Recorder] Recording file name: %s", output.getAbsolutePath () );
 		Log.infof ( "[Recorder] Buffer size: %d bytes (%.2f MB)", BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0 );
 		Log.infof ( "[Recorder] Expected format: %d Hz, %d channels, %d-bit", SAMPLE_RATE, CHANNELS, BYTES_PER_SAMPLE * 8 );
 	}
@@ -134,20 +141,8 @@ public class AudioRecorderRingBufferService {
 	}
 
 	/**
-	 * Saves RAW PCM for testing with Audacity.
-	 * <p>
-	 * private void saveRawPCM ( byte[] audioData ) {
-	 * try {
-	 * File rawFile = new File ( output.getParent (), "test_raw.pcm" );
-	 * java.nio.file.Files.write ( rawFile.toPath (), audioData );
-	 * Log.infof ( "[Recorder] Saved RAW PCM to: %s (import in Audacity: File > Import > Raw Data, 48000Hz, 16-bit PCM signed, little-endian, stereo)",
-	 * rawFile.getAbsolutePath () );
-	 * } catch ( Exception e ) {
-	 * Log.error ( "[Recorder] Error saving RAW PCM", e );
-	 * }
-	 * }
+	 * Writes WAV file using atomic file replacement to avoid Linux file descriptor issues.
 	 */
-
 	private void writeWavFile ( byte[] audioData ) throws Exception {
 		var format = new AudioFormat (
 						AudioFormat.Encoding.PCM_SIGNED,
@@ -162,19 +157,57 @@ public class AudioRecorderRingBufferService {
 		Log.infof ( "[Recorder] Audio format: %s", format );
 		Log.infof ( "[Recorder] Writing to file: %s", output.getAbsolutePath () );
 
-		long lengthInFrames = audioData.length / format.getFrameSize ();
+		// Write to a temporary file first (atomic operation pattern)
+		var tempFile = new File ( output.getParentFile (), output.getName () + ".tmp" );
 
-		try ( var bais = new ByteArrayInputStream ( audioData );
-						var ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
+		try {
+			long lengthInFrames = audioData.length / format.getFrameSize ();
 
-			AudioSystem.write ( ais, AudioFileFormat.Type.WAVE, output );
+			try ( var bais = new ByteArrayInputStream ( audioData );
+							var ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
 
-			// Immediate check after writing
-			if ( !output.exists () ) {
-				throw new Exception ( "File was not created: " + output.getAbsolutePath () );
+				// Write to temporary file
+				AudioSystem.write ( ais, AudioFileFormat.Type.WAVE, tempFile );
 			}
 
-			Log.infof ( "[Recorder] Write completed, file size: %d bytes", output.length () );
+			// Verify temp file was created
+			if ( !tempFile.exists () || tempFile.length () == 0 ) {
+				throw new IOException ( "Temporary file was not created or is empty: " + tempFile.getAbsolutePath () );
+			}
+
+			Log.infof ( "[Recorder] Temp file written: %d bytes", tempFile.length () );
+
+			// Atomic replace: move temp file to final destination
+			// This ensures the file is completely written before replacing the old one
+			Files.move (
+							tempFile.toPath (),
+							output.toPath (),
+							StandardCopyOption.REPLACE_EXISTING,
+							StandardCopyOption.ATOMIC_MOVE
+			);
+
+			Log.infof ( "[Recorder] File moved to final destination: %d bytes", output.length () );
+
+			// Force filesystem sync on Linux
+			if ( System.getProperty ( "os.name" ).toLowerCase ().contains ( "linux" ) ) {
+				try {
+					// This ensures the file is really written to disk
+					Runtime.getRuntime ().exec ( new String[] { "sync" } );
+				} catch ( IOException e ) {
+					Log.warn ( "[Recorder] Could not force filesystem sync", e );
+				}
+			}
+
+		} finally {
+			// Clean up temp file if it still exists
+			if ( tempFile.exists () ) {
+				try {
+					Files.delete ( tempFile.toPath () );
+					Log.debug ( "[Recorder] Cleaned up temporary file" );
+				} catch ( IOException e ) {
+					Log.warn ( "[Recorder] Could not delete temporary file: " + tempFile.getAbsolutePath (), e );
+				}
+			}
 		}
 	}
 
