@@ -37,6 +37,11 @@ public class AudioRecorderRingBufferService {
 
 	private final File output;
 
+	// Track last saved position to detect new data
+	private int lastSavedWritePos = 0;
+
+	private boolean lastSavedBufferFilledOnce = false;
+
 	// Counters for debug
 	private long totalBytesWritten = 0;
 
@@ -46,7 +51,8 @@ public class AudioRecorderRingBufferService {
 		this.output = new File ( outputName );
 		// Ensure parent directory exists
 		if ( output.getParentFile () != null && !output.getParentFile ().exists () ) {
-			output.getParentFile ().mkdirs ();
+			var mkdirsOutput = output.getParentFile ().mkdirs ();
+			Log.infof ( "Creating directory: %s", mkdirsOutput );
 		}
 		var scheduler = Executors.newSingleThreadScheduledExecutor ();
 		scheduler.scheduleAtFixedRate ( this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES );
@@ -67,8 +73,8 @@ public class AudioRecorderRingBufferService {
 		totalBytesWritten += pcm.length;
 		var now = System.currentTimeMillis ();
 		if ( now - lastLogTime > 30000 ) { // Log every 30 seconds
-			Log.infof ( "[Recorder] Tot bytes received: %d (%.2f MB), chunk size: %d",
-							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length );
+			Log.infof ( "[Recorder] Tot bytes received: %d (%.2f MB), chunk size: %d, writePos: %d, bufferFilled: %s",
+							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length, writePos, bufferFilledOnce );
 			lastLogTime = now;
 		}
 
@@ -100,9 +106,18 @@ public class AudioRecorderRingBufferService {
 	public synchronized void saveLastHourToWav () {
 		try {
 			Log.infof ( "[Recorder] Starting save operation to: %s", output.getAbsolutePath () );
+			Log.infof ( "[Recorder] Current state - writePos: %d, bufferFilledOnce: %s, lastSaved: %d, lastSavedFilled: %s",
+							writePos, bufferFilledOnce, lastSavedWritePos, lastSavedBufferFilledOnce );
 
-			if ( writePos == 0 && !bufferFilledOnce ) {
-				Log.warn ( "[Recorder] No audio data to save yet" );
+			// Check if there's ANY data in the buffer
+			if ( totalBytesWritten == 0 ) {
+				Log.warn ( "[Recorder] No audio has been received yet (totalBytesWritten = 0)" );
+				return;
+			}
+
+			// Check if there's new data since last save
+			if ( writePos == lastSavedWritePos && bufferFilledOnce == lastSavedBufferFilledOnce ) {
+				Log.warn ( "[Recorder] No new audio data since last save" );
 				return;
 			}
 
@@ -110,16 +125,25 @@ public class AudioRecorderRingBufferService {
 			int dataLength;
 
 			if ( bufferFilledOnce ) {
+				// Buffer has wrapped around at least once - save full buffer
 				audioData = new byte[BUFFER_SIZE];
 				dataLength = BUFFER_SIZE;
 				var endChunk = BUFFER_SIZE - writePos;
 				System.arraycopy ( ringBuffer, writePos, audioData, 0, endChunk );
 				System.arraycopy ( ringBuffer, 0, audioData, endChunk, writePos );
+				Log.infof ( "[Recorder] Buffer filled, saving full buffer (%d bytes)", dataLength );
 			} else {
+				// Buffer hasn't wrapped yet - save from start to writePos
 				// Align to frame size to avoid partial frames
 				dataLength = ( writePos / FRAME_SIZE ) * FRAME_SIZE;
+				if ( dataLength == 0 ) {
+					Log.warn ( "[Recorder] writePos too small to form complete frames" );
+					return;
+				}
 				audioData = new byte[dataLength];
 				System.arraycopy ( ringBuffer, 0, audioData, 0, dataLength );
+				Log.infof ( "[Recorder] Buffer not yet filled, saving %d bytes (%.2f%% of buffer)",
+								dataLength, ( dataLength * 100.0 ) / BUFFER_SIZE );
 			}
 
 			Log.infof ( "[Recorder] Saving %d bytes (%.2f seconds) to WAV",
@@ -127,6 +151,9 @@ public class AudioRecorderRingBufferService {
 
 			writeWavFile ( audioData );
 
+			// Update last saved position
+			lastSavedWritePos = writePos;
+			lastSavedBufferFilledOnce = bufferFilledOnce;
 			// Verify file exists and has content
 			if ( output.exists () ) {
 				Log.infof ( "[Recorder] ✓ File saved successfully: %s (%.2f MB)",
@@ -136,7 +163,7 @@ public class AudioRecorderRingBufferService {
 			}
 
 		} catch ( Exception e ) {
-			Log.errorf ( e, "[Recorder] Error saving WAV to %s", output.getAbsolutePath () ); // ⬅️ Include stacktrace
+			Log.errorf ( e, "[Recorder] Error saving WAV to %s", output.getAbsolutePath () );
 		}
 	}
 

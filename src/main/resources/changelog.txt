@@ -1,3 +1,6 @@
+Version 1.6.7
+- another fix attemp on audio file write to disk
+
 Version 1.6.6
 - fixed /version's link
 
