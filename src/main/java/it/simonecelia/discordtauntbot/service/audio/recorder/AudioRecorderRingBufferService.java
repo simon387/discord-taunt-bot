@@ -31,34 +31,37 @@ public class AudioRecorderRingBufferService {
 
 	private final byte[] ringBuffer = new byte[BUFFER_SIZE];
 
-	private int writePos = 0;
+	private volatile int writePos = 0;
 
-	private boolean bufferFilledOnce = false;
+	private volatile boolean bufferFilledOnce = false;
 
 	private final File output;
 
 	// Track last saved position to detect new data
-	private int lastSavedWritePos = 0;
+	private volatile int lastSavedWritePos = 0;
 
-	private boolean lastSavedBufferFilledOnce = false;
+	private volatile boolean lastSavedBufferFilledOnce = false;
 
-	// Counters for debug
-	private long totalBytesWritten = 0;
+	// Counters for debug - MUST be volatile for thread visibility
+	private volatile long totalBytesWritten = 0;
 
-	private long lastLogTime = System.currentTimeMillis ();
+	private volatile long lastLogTime = System.currentTimeMillis ();
 
 	public AudioRecorderRingBufferService ( String outputName ) {
 		this.output = new File ( outputName );
 		// Ensure parent directory exists
 		if ( output.getParentFile () != null && !output.getParentFile ().exists () ) {
-			var mkdirsOutput = output.getParentFile ().mkdirs ();
-			Log.infof ( "Creating directory: %s", mkdirsOutput );
+			boolean mkdirsOutput = output.getParentFile ().mkdirs ();
+			Log.infof ( "[Recorder] Creating directory: %s", mkdirsOutput );
 		}
 		var scheduler = Executors.newSingleThreadScheduledExecutor ();
+		// scheduleAtFixedRate(task, initialDelay, period, unit)
+		// First execution after 5 minutes, then every 5 minutes
 		scheduler.scheduleAtFixedRate ( this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES );
 		Log.infof ( "[Recorder] Recording file name: %s", output.getAbsolutePath () );
 		Log.infof ( "[Recorder] Buffer size: %d bytes (%.2f MB)", BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0 );
 		Log.infof ( "[Recorder] Expected format: %d Hz, %d channels, %d-bit", SAMPLE_RATE, CHANNELS, BYTES_PER_SAMPLE * 8 );
+		Log.infof ( "[Recorder] Auto-save scheduled every 5 minutes (first save in 5 minutes)" );
 	}
 
 	/**
@@ -71,7 +74,7 @@ public class AudioRecorderRingBufferService {
 
 		// Periodic debug log
 		totalBytesWritten += pcm.length;
-		var now = System.currentTimeMillis ();
+		long now = System.currentTimeMillis ();
 		if ( now - lastLogTime > 30000 ) { // Log every 30 seconds
 			Log.infof ( "[Recorder] Tot bytes received: %d (%.2f MB), chunk size: %d, writePos: %d, bufferFilled: %s",
 							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length, writePos, bufferFilledOnce );
@@ -79,12 +82,12 @@ public class AudioRecorderRingBufferService {
 		}
 
 		// Copy entire chunk
-		var remaining = pcm.length;
+		int remaining = pcm.length;
 		int offset = 0;
 
 		while ( remaining > 0 ) {
-			var spaceToEnd = ringBuffer.length - writePos;
-			var toCopy = Math.min ( remaining, spaceToEnd );
+			int spaceToEnd = ringBuffer.length - writePos;
+			int toCopy = Math.min ( remaining, spaceToEnd );
 
 			System.arraycopy ( pcm, offset, ringBuffer, writePos, toCopy );
 
@@ -105,18 +108,24 @@ public class AudioRecorderRingBufferService {
 	 */
 	public synchronized void saveLastHourToWav () {
 		try {
+			// Capture current state in local variables (thread-safe snapshot)
+			int currentWritePos = writePos;
+			boolean currentBufferFilled = bufferFilledOnce;
+			long currentTotalBytes = totalBytesWritten;
 			Log.infof ( "[Recorder] Starting save operation to: %s", output.getAbsolutePath () );
-			Log.infof ( "[Recorder] Current state - writePos: %d, bufferFilledOnce: %s, lastSaved: %d, lastSavedFilled: %s",
-							writePos, bufferFilledOnce, lastSavedWritePos, lastSavedBufferFilledOnce );
+			Log.infof ( "[Recorder] Current state - writePos: %d, bufferFilledOnce: %s, totalBytes: %d",
+							currentWritePos, currentBufferFilled, currentTotalBytes );
+			Log.infof ( "[Recorder] Last saved state - writePos: %d, bufferFilledOnce: %s",
+							lastSavedWritePos, lastSavedBufferFilledOnce );
 
 			// Check if there's ANY data in the buffer
-			if ( totalBytesWritten == 0 ) {
+			if ( currentTotalBytes == 0 ) {
 				Log.warn ( "[Recorder] No audio has been received yet (totalBytesWritten = 0)" );
 				return;
 			}
 
 			// Check if there's new data since last save
-			if ( writePos == lastSavedWritePos && bufferFilledOnce == lastSavedBufferFilledOnce ) {
+			if ( currentWritePos == lastSavedWritePos && currentBufferFilled == lastSavedBufferFilledOnce ) {
 				Log.warn ( "[Recorder] No new audio data since last save" );
 				return;
 			}
@@ -124,18 +133,18 @@ public class AudioRecorderRingBufferService {
 			byte[] audioData;
 			int dataLength;
 
-			if ( bufferFilledOnce ) {
+			if ( currentBufferFilled ) {
 				// Buffer has wrapped around at least once - save full buffer
 				audioData = new byte[BUFFER_SIZE];
 				dataLength = BUFFER_SIZE;
-				var endChunk = BUFFER_SIZE - writePos;
-				System.arraycopy ( ringBuffer, writePos, audioData, 0, endChunk );
-				System.arraycopy ( ringBuffer, 0, audioData, endChunk, writePos );
+				int endChunk = BUFFER_SIZE - currentWritePos;
+				System.arraycopy ( ringBuffer, currentWritePos, audioData, 0, endChunk );
+				System.arraycopy ( ringBuffer, 0, audioData, endChunk, currentWritePos );
 				Log.infof ( "[Recorder] Buffer filled, saving full buffer (%d bytes)", dataLength );
 			} else {
 				// Buffer hasn't wrapped yet - save from start to writePos
 				// Align to frame size to avoid partial frames
-				dataLength = ( writePos / FRAME_SIZE ) * FRAME_SIZE;
+				dataLength = ( currentWritePos / FRAME_SIZE ) * FRAME_SIZE;
 				if ( dataLength == 0 ) {
 					Log.warn ( "[Recorder] writePos too small to form complete frames" );
 					return;
@@ -152,8 +161,8 @@ public class AudioRecorderRingBufferService {
 			writeWavFile ( audioData );
 
 			// Update last saved position
-			lastSavedWritePos = writePos;
-			lastSavedBufferFilledOnce = bufferFilledOnce;
+			lastSavedWritePos = currentWritePos;
+			lastSavedBufferFilledOnce = currentBufferFilled;
 			// Verify file exists and has content
 			if ( output.exists () ) {
 				Log.infof ( "[Recorder] ✓ File saved successfully: %s (%.2f MB)",
@@ -171,7 +180,7 @@ public class AudioRecorderRingBufferService {
 	 * Writes WAV file using atomic file replacement to avoid Linux file descriptor issues.
 	 */
 	private void writeWavFile ( byte[] audioData ) throws Exception {
-		var format = new AudioFormat (
+		AudioFormat format = new AudioFormat (
 						AudioFormat.Encoding.PCM_SIGNED,
 						SAMPLE_RATE,
 						16,
@@ -185,13 +194,13 @@ public class AudioRecorderRingBufferService {
 		Log.infof ( "[Recorder] Writing to file: %s", output.getAbsolutePath () );
 
 		// Write to a temporary file first (atomic operation pattern)
-		var tempFile = new File ( output.getParentFile (), output.getName () + ".tmp" );
+		File tempFile = new File ( output.getParentFile (), output.getName () + ".tmp" );
 
 		try {
 			long lengthInFrames = audioData.length / format.getFrameSize ();
 
-			try ( var bais = new ByteArrayInputStream ( audioData );
-							var ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
+			try ( ByteArrayInputStream bais = new ByteArrayInputStream ( audioData );
+							AudioInputStream ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
 
 				// Write to temporary file
 				AudioSystem.write ( ais, AudioFileFormat.Type.WAVE, tempFile );
@@ -205,7 +214,6 @@ public class AudioRecorderRingBufferService {
 			Log.infof ( "[Recorder] Temp file written: %d bytes", tempFile.length () );
 
 			// Atomic replace: move temp file to final destination
-			// This ensures the file is completely written before replacing the old one
 			Files.move (
 							tempFile.toPath (),
 							output.toPath (),
