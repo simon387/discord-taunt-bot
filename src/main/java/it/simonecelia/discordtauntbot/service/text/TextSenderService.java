@@ -53,7 +53,7 @@ public class TextSenderService {
 
 	public void sendVersion ( MessageReceivedEvent event ) {
 		Log.info ( "Showing version" );
-		event.getChannel ().sendMessage ( "https://github.com/simon387/discord-taunt-bot/blob/master/changelog.txt" ).queue ();
+		event.getChannel ().sendMessage ( "https://github.com/simon387/discord-taunt-bot/blob/master/src/main/resources/changelog.txt" ).queue ();
 	}
 
 	public void getTimeUntilNextKothTime ( MessageReceivedEvent event ) {
