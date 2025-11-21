@@ -31,6 +31,11 @@ public class AudioRecorderRingBufferService {
 
 	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 hour
 
+	// Singleton instance
+	private static volatile AudioRecorderRingBufferService instance;
+
+	private static final Object LOCK = new Object ();
+
 	private final String instanceId = UUID.randomUUID ().toString ().substring ( 0, 8 );
 
 	private final byte[] ringBuffer = new byte[BUFFER_SIZE];
@@ -53,7 +58,38 @@ public class AudioRecorderRingBufferService {
 
 	private volatile long lastLogTime = System.currentTimeMillis ();
 
-	public AudioRecorderRingBufferService ( String outputName ) {
+	/**
+	 * Gets or creates the singleton instance.
+	 */
+	public static AudioRecorderRingBufferService getInstance ( String outputName ) {
+		if ( instance == null ) {
+			synchronized ( LOCK ) {
+				if ( instance == null ) {
+					Log.info ( "[Recorder] Creating new singleton instance" );
+					instance = new AudioRecorderRingBufferService ( outputName );
+				}
+			}
+		}
+		return instance;
+	}
+
+	/**
+	 * Destroys the singleton instance and stops all background tasks.
+	 */
+	public static void destroyInstance () {
+		synchronized ( LOCK ) {
+			if ( instance != null ) {
+				Log.info ( "[Recorder] Destroying singleton instance" );
+				instance.shutdown ();
+				instance = null;
+			}
+		}
+	}
+
+	/**
+	 * Private constructor - use getInstance() instead.
+	 */
+	private AudioRecorderRingBufferService ( String outputName ) {
 		this.output = new File ( outputName );
 
 		// Ensure parent directory exists
@@ -145,21 +181,21 @@ public class AudioRecorderRingBufferService {
 			boolean currentBufferFilled = bufferFilledOnce;
 			long currentTotalBytes = totalBytesWritten;
 
-			Log.infof ( "[Recorder] Starting save operation to: %s", output.getAbsolutePath () );
-			Log.infof ( "[Recorder] Current state - writePos: %d, bufferFilledOnce: %s, totalBytes: %d",
-							currentWritePos, currentBufferFilled, currentTotalBytes );
-			Log.infof ( "[Recorder] Last saved state - writePos: %d, bufferFilledOnce: %s",
-							lastSavedWritePos, lastSavedBufferFilledOnce );
+			Log.infof ( "[Recorder:%s] Starting save operation to: %s", instanceId, output.getAbsolutePath () );
+			Log.infof ( "[Recorder:%s] Current state - writePos: %d, bufferFilledOnce: %s, totalBytes: %d",
+							instanceId, currentWritePos, currentBufferFilled, currentTotalBytes );
+			Log.infof ( "[Recorder:%s] Last saved state - writePos: %d, bufferFilledOnce: %s",
+							instanceId, lastSavedWritePos, lastSavedBufferFilledOnce );
 
 			// Check if there's ANY data in the buffer
 			if ( currentTotalBytes == 0 ) {
-				Log.warn ( "[Recorder] No audio has been received yet (totalBytesWritten = 0)" );
+				Log.warnf ( "[Recorder:%s] No audio has been received yet (totalBytesWritten = 0)", instanceId );
 				return;
 			}
 
 			// Check if there's new data since last save
 			if ( currentWritePos == lastSavedWritePos && currentBufferFilled == lastSavedBufferFilledOnce ) {
-				Log.warn ( "[Recorder] No new audio data since last save" );
+				Log.warnf ( "[Recorder:%s] No new audio data since last save", instanceId );
 				return;
 			}
 

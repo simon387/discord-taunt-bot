@@ -27,9 +27,9 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 	private final AudioRecorderRingBufferService recorder;
 
 	public DiscordTauntBotBaseLogger () {
-		final var fileName = "temp.wav";
-		Log.infof ( "Recording file name: %s", fileName );
-		this.recorder = new AudioRecorderRingBufferService ( fileName );
+		final var outputName = "temp.wav";
+		Log.infof ( "Recording file name: %s", outputName );
+		this.recorder = AudioRecorderRingBufferService.getInstance ( outputName );
 	}
 
 	protected boolean isFromAdmin ( MessageReceivedEvent event ) {

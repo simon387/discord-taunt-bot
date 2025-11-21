@@ -1,3 +1,6 @@
+Version 1.6.10
+- another fix attemp on audio file write to disk
+
 Version 1.6.9
 - another fix attemp on audio file write to disk
 
