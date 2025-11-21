@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
@@ -29,6 +31,8 @@ public class AudioRecorderRingBufferService {
 
 	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 hour
 
+	private final String instanceId = UUID.randomUUID ().toString ().substring ( 0, 8 );
+
 	private final byte[] ringBuffer = new byte[BUFFER_SIZE];
 
 	private volatile int writePos = 0;
@@ -36,6 +40,8 @@ public class AudioRecorderRingBufferService {
 	private volatile boolean bufferFilledOnce = false;
 
 	private final File output;
+
+	private final ScheduledExecutorService scheduler;
 
 	// Track last saved position to detect new data
 	private volatile int lastSavedWritePos = 0;
@@ -49,19 +55,45 @@ public class AudioRecorderRingBufferService {
 
 	public AudioRecorderRingBufferService ( String outputName ) {
 		this.output = new File ( outputName );
+
 		// Ensure parent directory exists
 		if ( output.getParentFile () != null && !output.getParentFile ().exists () ) {
 			boolean mkdirsOutput = output.getParentFile ().mkdirs ();
-			Log.infof ( "[Recorder] Creating directory: %s", mkdirsOutput );
+			Log.infof ( "[Recorder:%s] Creating directory: %s", instanceId, mkdirsOutput );
 		}
-		var scheduler = Executors.newSingleThreadScheduledExecutor ();
+
+		this.scheduler = Executors.newSingleThreadScheduledExecutor ( r -> {
+			Thread t = new Thread ( r );
+			t.setName ( "AudioRecorder-" + instanceId );
+			return t;
+		} );
+
 		// scheduleAtFixedRate(task, initialDelay, period, unit)
 		// First execution after 5 minutes, then every 5 minutes
 		scheduler.scheduleAtFixedRate ( this::saveLastHourToWav, 5, 5, TimeUnit.MINUTES );
-		Log.infof ( "[Recorder] Recording file name: %s", output.getAbsolutePath () );
-		Log.infof ( "[Recorder] Buffer size: %d bytes (%.2f MB)", BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0 );
-		Log.infof ( "[Recorder] Expected format: %d Hz, %d channels, %d-bit", SAMPLE_RATE, CHANNELS, BYTES_PER_SAMPLE * 8 );
-		Log.infof ( "[Recorder] Auto-save scheduled every 5 minutes (first save in 5 minutes)" );
+
+		Log.infof ( "[Recorder:%s] *** NEW INSTANCE CREATED ***", instanceId );
+		Log.infof ( "[Recorder:%s] Recording file name: %s", instanceId, output.getAbsolutePath () );
+		Log.infof ( "[Recorder:%s] Buffer size: %d bytes (%.2f MB)", instanceId, BUFFER_SIZE, BUFFER_SIZE / 1024.0 / 1024.0 );
+		Log.infof ( "[Recorder:%s] Expected format: %d Hz, %d channels, %d-bit", instanceId, SAMPLE_RATE, CHANNELS, BYTES_PER_SAMPLE * 8 );
+		Log.infof ( "[Recorder:%s] Auto-save scheduled every 5 minutes (first save in 5 minutes)", instanceId );
+	}
+
+	/**
+	 * Stops the scheduler and releases resources.
+	 * Call this when the recorder is no longer needed.
+	 */
+	public void shutdown () {
+		Log.infof ( "[Recorder:%s] *** SHUTTING DOWN ***", instanceId );
+		scheduler.shutdown ();
+		try {
+			if ( !scheduler.awaitTermination ( 5, TimeUnit.SECONDS ) ) {
+				scheduler.shutdownNow ();
+			}
+		} catch ( InterruptedException e ) {
+			scheduler.shutdownNow ();
+			Thread.currentThread ().interrupt ();
+		}
 	}
 
 	/**
@@ -76,8 +108,8 @@ public class AudioRecorderRingBufferService {
 		totalBytesWritten += pcm.length;
 		long now = System.currentTimeMillis ();
 		if ( now - lastLogTime > 30000 ) { // Log every 30 seconds
-			Log.infof ( "[Recorder] Tot bytes received: %d (%.2f MB), chunk size: %d, writePos: %d, bufferFilled: %s",
-							totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length, writePos, bufferFilledOnce );
+			Log.infof ( "[Recorder:%s] Tot bytes received: %d (%.2f MB), chunk size: %d, writePos: %d, bufferFilled: %s",
+							instanceId, totalBytesWritten, totalBytesWritten / 1024.0 / 1024.0, pcm.length, writePos, bufferFilledOnce );
 			lastLogTime = now;
 		}
 
@@ -98,7 +130,7 @@ public class AudioRecorderRingBufferService {
 			if ( writePos >= ringBuffer.length ) {
 				writePos = 0;
 				bufferFilledOnce = true;
-				Log.info ( "[Recorder] Ring buffer wrapped around" );
+				Log.infof ( "[Recorder:%s] Ring buffer wrapped around", instanceId );
 			}
 		}
 	}
@@ -112,6 +144,7 @@ public class AudioRecorderRingBufferService {
 			int currentWritePos = writePos;
 			boolean currentBufferFilled = bufferFilledOnce;
 			long currentTotalBytes = totalBytesWritten;
+
 			Log.infof ( "[Recorder] Starting save operation to: %s", output.getAbsolutePath () );
 			Log.infof ( "[Recorder] Current state - writePos: %d, bufferFilledOnce: %s, totalBytes: %d",
 							currentWritePos, currentBufferFilled, currentTotalBytes );
@@ -163,6 +196,7 @@ public class AudioRecorderRingBufferService {
 			// Update last saved position
 			lastSavedWritePos = currentWritePos;
 			lastSavedBufferFilledOnce = currentBufferFilled;
+
 			// Verify file exists and has content
 			if ( output.exists () ) {
 				Log.infof ( "[Recorder] ✓ File saved successfully: %s (%.2f MB)",
@@ -222,16 +256,6 @@ public class AudioRecorderRingBufferService {
 			);
 
 			Log.infof ( "[Recorder] File moved to final destination: %d bytes", output.length () );
-
-			// Force filesystem sync on Linux
-			if ( System.getProperty ( "os.name" ).toLowerCase ().contains ( "linux" ) ) {
-				try {
-					// This ensures the file is really written to disk
-					Runtime.getRuntime ().exec ( new String[] { "sync" } );
-				} catch ( IOException e ) {
-					Log.warn ( "[Recorder] Could not force filesystem sync", e );
-				}
-			}
 
 		} finally {
 			// Clean up temp file if it still exists
