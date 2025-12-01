@@ -37,17 +37,17 @@ public class TextSenderService {
 	public void sendCmdList ( MessageReceivedEvent event ) {
 		Log.info ( "Listing all commands" );
 		var list = new StringBuilder ();
-		list.append ( "`<taunt>        -->   plays taunt`\n" );
-		list.append ( "`/tts  <text>   -->   send tts audio`\n" );
-		list.append ( "`/stop          -->   stops all audios`\n" );
-		list.append ( "`/tauntlist     -->   shows taunt list`\n" );
-		list.append ( "`/links         -->   shows links`\n" );
-		list.append ( "`/list          -->   shows this list`\n" );
-		// list.append ( "`/koth          -->   shows how many minutes are left until the KoTH`\n" );
-		list.append ( "`/version       -->   shows version infos`\n" );
-		list.append ( "`/verbose       -->   verbose flag on/off (only admins)`\n" );
-		list.append ( "`/kill          -->   kills the bot (only admins)`\n" );
-		list.append ( "`/guide         -->   shows crafting guide`\n" );
+		list.append ( "`<taunt>      --> plays taunt`\n" );
+		list.append ( "`/tts <text>  --> send tts audio`\n" );
+		list.append ( "`/stop        --> stops all audios`\n" );
+		list.append ( "`/tauntlist   --> shows taunt list`\n" );
+		list.append ( "`/links       --> shows links`\n" );
+		list.append ( "`/list        --> shows this list`\n" );
+		// list.append ( "`/koth     --> shows how many minutes are left until the KoTH`\n" );
+		list.append ( "`/version     --> shows version infos`\n" );
+		list.append ( "`/verbose     --> verbose flag on/off`\n" );
+		list.append ( "`/kill        --> kills the bot`\n" );
+		list.append ( "`/guide       --> shows crafting guide`\n" );
 		event.getChannel ().sendMessage ( list ).queue ();
 	}
 

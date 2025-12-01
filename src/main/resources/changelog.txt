@@ -1,4 +1,7 @@
 Version 1.6.12
+- short sendCmdList
+
+Version 1.6.12
 - changed ts-bow-web link
 
 Version 1.6.11
