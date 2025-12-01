@@ -43,9 +43,9 @@ public class TextSenderService {
 		list.append ( "`/tauntlist     -->   shows taunt list`\n" );
 		list.append ( "`/links         -->   shows links`\n" );
 		list.append ( "`/list          -->   shows this list`\n" );
-		list.append ( "`/koth          -->   shows how many minutes are left until the KoTH`\n" );
+		// list.append ( "`/koth          -->   shows how many minutes are left until the KoTH`\n" );
 		list.append ( "`/version       -->   shows version infos`\n" );
-		list.append ( "`/verbose       -->   switch verbose flag on/off (only admins)`\n" );
+		list.append ( "`/verbose       -->   verbose flag on/off (only admins)`\n" );
 		list.append ( "`/kill          -->   kills the bot (only admins)`\n" );
 		list.append ( "`/guide         -->   shows crafting guide`\n" );
 		event.getChannel ().sendMessage ( list ).queue ();

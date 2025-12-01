@@ -1,3 +1,6 @@
+Version 1.6.11
+- koth command is now hidden
+
 Version 1.6.10
 - another fix attemp on audio file write to disk
 
