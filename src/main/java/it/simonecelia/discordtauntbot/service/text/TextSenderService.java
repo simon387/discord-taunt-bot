@@ -16,7 +16,7 @@ public class TextSenderService {
 
 	public void sendTauntList ( MessageReceivedEvent event ) {
 		Log.info ( "Showing tauntlist" );
-		event.getChannel ().sendMessage ( "https://www.simonecelia.it/ts-bot-web/index.html" ).queue ();
+		event.getChannel ().sendMessage ( "https://www.simonecelia.it/ts-bot-web" ).queue ();
 	}
 
 	@SuppressWarnings ( "HttpUrlsUsage" )
