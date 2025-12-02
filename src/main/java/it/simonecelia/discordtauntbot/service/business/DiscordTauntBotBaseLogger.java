@@ -24,12 +24,12 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 	@Inject
 	AppConfig appConfig;
 
-	private final AudioRecorderRingBufferService recorder;
+	private final AudioRecorderRingBufferService audioRecorderRingBufferService;
 
 	public DiscordTauntBotBaseLogger () {
 		final var outputName = "temp.wav";
 		Log.infof ( "Recording file name: %s", outputName );
-		this.recorder = AudioRecorderRingBufferService.getInstance ( outputName );
+		this.audioRecorderRingBufferService = AudioRecorderRingBufferService.getInstance ( outputName );
 	}
 
 	protected boolean isFromAdmin ( MessageReceivedEvent event ) {
@@ -67,7 +67,7 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 				Log.infof ( "Bot entered in channel: %s", event.getChannelJoined ().getName () );
 				// Qui puoi impostare il tuo AudioManager e Recorder
 				AudioManager audioManager = event.getGuild ().getAudioManager ();
-				audioManager.setReceivingHandler ( new AudioReceiveHandler ( recorder ) );
+				audioManager.setReceivingHandler ( new AudioReceiveHandler ( audioRecorderRingBufferService ) );
 				audioManager.openAudioConnection ( event.getChannelJoined () );
 			}
 

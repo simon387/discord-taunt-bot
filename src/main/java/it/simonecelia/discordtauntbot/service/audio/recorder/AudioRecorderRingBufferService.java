@@ -29,7 +29,7 @@ public class AudioRecorderRingBufferService {
 
 	private static final int BYTES_PER_SECOND = SAMPLE_RATE * FRAME_SIZE;
 
-	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 hour
+	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600 * 2; // 2 hour
 
 	// Singleton instance
 	private static volatile AudioRecorderRingBufferService instance;
@@ -264,13 +264,13 @@ public class AudioRecorderRingBufferService {
 		Log.infof ( "[Recorder] Writing to file: %s", output.getAbsolutePath () );
 
 		// Write to a temporary file first (atomic operation pattern)
-		File tempFile = new File ( output.getParentFile (), output.getName () + ".tmp" );
+		var tempFile = new File ( output.getParentFile (), output.getName () + ".tmp" );
 
 		try {
 			long lengthInFrames = audioData.length / format.getFrameSize ();
 
-			try ( ByteArrayInputStream bais = new ByteArrayInputStream ( audioData );
-							AudioInputStream ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
+			try ( var bais = new ByteArrayInputStream ( audioData );
+							var ais = new AudioInputStream ( bais, format, lengthInFrames ) ) {
 
 				// Write to temporary file
 				AudioSystem.write ( ais, AudioFileFormat.Type.WAVE, tempFile );
