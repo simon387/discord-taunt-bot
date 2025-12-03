@@ -1,3 +1,6 @@
+Version 1.6.15
+- set buffer to 3 hours
+
 Version 1.6.14
 - partial 1.6.13 rollback
 
