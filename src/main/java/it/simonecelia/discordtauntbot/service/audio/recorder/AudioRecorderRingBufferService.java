@@ -37,7 +37,7 @@ public class AudioRecorderRingBufferService {
 
 	private static final int CHUNK_SIZE = BYTES_PER_SECOND * CHUNK_DURATION_SECONDS;
 
-	private static final int NUM_CHUNKS = 24; // 24 × 10min = 4 ore
+	private static final int NUM_CHUNKS = 18; // 24 × 10min = 4 ore
 
 	// Singleton instance
 	private static volatile AudioRecorderRingBufferService instance;
