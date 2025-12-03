@@ -1,3 +1,6 @@
+Version 1.6.18
+- updated run script
+
 Version 1.6.17
 - aug heap
 
