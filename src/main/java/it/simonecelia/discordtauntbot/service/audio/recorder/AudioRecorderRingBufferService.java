@@ -29,7 +29,7 @@ public class AudioRecorderRingBufferService {
 
 	private static final int BYTES_PER_SECOND = SAMPLE_RATE * FRAME_SIZE;
 
-	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600 * 2; // 2 hour
+	private static final int BUFFER_SIZE = BYTES_PER_SECOND * 3600; // 1 hour
 
 	// Singleton instance
 	private static volatile AudioRecorderRingBufferService instance;
