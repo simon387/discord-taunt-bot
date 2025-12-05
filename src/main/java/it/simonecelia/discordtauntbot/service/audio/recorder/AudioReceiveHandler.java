@@ -11,6 +11,15 @@ public class AudioReceiveHandler implements net.dv8tion.jda.api.audio.AudioRecei
 
 	private long lastDebugTime = 0;
 
+	// Configurazione rilevamento silenzio
+	private static final double SILENCE_THRESHOLD_DBFS = -50.0; // Soglia in dBFS
+
+	private static final long SILENCE_TIMEOUT_MS = 300000; // 5 minuti di silenzio
+
+	private long lastAudioActivityTime = System.currentTimeMillis ();
+
+	private boolean isRecording = true;
+
 	public AudioReceiveHandler ( AudioRecorderRingBufferService recorder ) {
 		this.recorder = recorder;
 	}
@@ -27,34 +36,68 @@ public class AudioReceiveHandler implements net.dv8tion.jda.api.audio.AudioRecei
 
 	@Override
 	public void handleCombinedAudio ( @NotNull CombinedAudio combinedAudio ) {
-		// Normal volume
 		var audio = combinedAudio.getAudioData ( 1.0f );
 
-		// Improved DEBUG: calculate actual volume
+		// Calcola il volume dell'audio
+		double dbFS = calculateVolume ( audio );
+
 		long now = System.currentTimeMillis ();
-		if ( now - lastDebugTime > 5000 ) {
-			lastDebugTime = now;
 
-			// Calculate RMS volume of the audio
-			long sumSquares = 0;
-			var samples = 0;
-
-			for ( var i = 0; i < Math.min ( audio.length, 3840 ); i += 2 ) {
-				if ( i + 1 < audio.length ) {
-					// Read 16-bit little-endian sample
-					var sample = (short) ( ( ( audio[i + 1] & 0xFF ) << 8 ) | ( audio[i] & 0xFF ) );
-					sumSquares += (long) sample * sample;
-					samples++;
-				}
+		// Verifica se c'è attività audio
+		if ( dbFS > SILENCE_THRESHOLD_DBFS ) {
+			// C'è audio attivo
+			if ( !isRecording ) {
+				Log.infof ( "[AudioReceiver] Attività audio rilevata (%.1f dBFS), riprendo la registrazione", dbFS );
+				isRecording = true;
 			}
+			lastAudioActivityTime = now;
+		} else {
+			// Silenzio rilevato
+			long silenceDuration = now - lastAudioActivityTime;
 
-			var rms = samples > 0 ? Math.sqrt ( (double) sumSquares / samples ) : 0;
-			var dbFS = 20 * Math.log10 ( rms / 32768.0 ); // dBFS (0 = max volume)
-
-			Log.debugf ( "Combined audio: %d bytes, RMS: %.0f, Volume: %.1f dBFS, first bytes: %d, %d, %d%n",
-							audio.length, rms, dbFS, audio[0], audio[1], audio[2] );
+			if ( isRecording && silenceDuration > SILENCE_TIMEOUT_MS ) {
+				Log.infof ( "[AudioReceiver] Silenzio prolungato rilevato (%d minuti), pauso la registrazione",
+								silenceDuration / 60000 );
+				isRecording = false;
+			}
 		}
 
-		recorder.writeToRingBuffer ( audio );
+		// Scrivi nel buffer solo se stiamo registrando
+		if ( isRecording ) {
+			recorder.writeToRingBuffer ( audio );
+		}
+
+		// Debug periodico
+		if ( now - lastDebugTime > 5000 ) {
+			lastDebugTime = now;
+			long silenceDuration = now - lastAudioActivityTime;
+
+			Log.debugf ( "Audio: %d bytes, Volume: %.1f dBFS, Recording: %s, Silence: %d sec",
+							audio.length, dbFS, isRecording, silenceDuration / 1000 );
+		}
+	}
+
+	/**
+	 * Calcola il volume RMS in dBFS
+	 */
+	private double calculateVolume ( byte[] audio ) {
+		long sumSquares = 0;
+		int samples = 0;
+
+		for ( int i = 0; i < Math.min ( audio.length, 3840 ); i += 2 ) {
+			if ( i + 1 < audio.length ) {
+				// Leggi sample 16-bit little-endian
+				short sample = (short) ( ( ( audio[i + 1] & 0xFF ) << 8 ) | ( audio[i] & 0xFF ) );
+				sumSquares += (long) sample * sample;
+				samples++;
+			}
+		}
+
+		if ( samples == 0 ) {
+			return -96.0; // Silenzio assoluto
+		}
+
+		double rms = Math.sqrt ( (double) sumSquares / samples );
+		return 20 * Math.log10 ( rms / 32768.0 ); // dBFS (0 = volume massimo)
 	}
 }
