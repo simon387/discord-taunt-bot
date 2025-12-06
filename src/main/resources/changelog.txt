@@ -1,3 +1,6 @@
+Version 1.6.22
+- clean code
+
 Version 1.6.21
 - added anti-empty on audio recording
 
