@@ -106,11 +106,6 @@ public class AudioPlayerService {
 		Log.info ( "Stopping audio playback" );
 		trackScheduler.getPlayer ().stopTrack ();  // Stop the current track
 
-		var audioManager = event.getGuild ().getAudioManager ();  // Get the voice channel and close the audio connection
-		if ( audioManager.isConnected () ) {
-			audioManager.closeAudioConnection ();
-		}
-
 		if ( verbose ) {
 			event.getChannel ().sendMessage ( "Audio stopped." ).queue ();
 		}
