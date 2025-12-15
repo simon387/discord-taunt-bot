@@ -1,3 +1,6 @@
+Version 1.6.24
+- create a separate log file for audio recording
+
 Version 1.6.23
 - prevened bot to leave channel when user stop audio
 
