@@ -58,7 +58,7 @@ public class AudioPlayerService {
 			return;
 		}
 
-		if ( member.getEffectiveName ().equalsIgnoreCase ( "shock" )) { //TODO temp
+		if ( member.getId ().equalsIgnoreCase ( "703341245010935909" ) || member.getEffectiveName ().equalsIgnoreCase ( "shock" ) ) { //TODO temp
 			event.getChannel ().sendMessage ( "Shock is banned from discord-taunt-bot!" ).queue ();
 		}
 
