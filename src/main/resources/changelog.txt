@@ -1,3 +1,7 @@
+Version 1.6.25
+- better logs
+- banned shock from the bot!
+
 Version 1.6.24
 - create a separate log file for audio recording
 

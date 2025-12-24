@@ -58,6 +58,10 @@ public class AudioPlayerService {
 			return;
 		}
 
+		if ( member.getEffectiveName ().equalsIgnoreCase ( "shock" )) { //TODO temp
+			event.getChannel ().sendMessage ( "Shock is banned from discord-taunt-bot!" ).queue ();
+		}
+
 		// safe: only reached if user is in a voice channel
 		var voiceChannel = voiceState.getChannel ().asVoiceChannel ();
 		Log.infof ( "voiceChannel id: %s", voiceChannel.getId () );

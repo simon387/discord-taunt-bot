@@ -44,7 +44,7 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 		var leftChannel = event.getChannelLeft ();
 
 		if ( joinedChannel != null ) {
-			Log.infof ( "%s entered voice channel: %s[id=%s]", member.getEffectiveName (), joinedChannel.getName (), joinedChannel.getId () );
+			Log.infof ( "%s[id=%s] entered voice channel: %s[id=%s]", member.getEffectiveName (), member.getId (), joinedChannel.getName (), joinedChannel.getId () );
 		}
 
 		if ( leftChannel != null ) {
