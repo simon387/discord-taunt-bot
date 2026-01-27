@@ -1,3 +1,6 @@
+Version 1.6.29
+- fixed multi server audio bug
+
 Version 1.6.28
 - update readme
 
