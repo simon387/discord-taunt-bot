@@ -1,3 +1,6 @@
+Version 1.6.28
+- update readme
+
 Version 1.6.27
 - fix ban bug
 

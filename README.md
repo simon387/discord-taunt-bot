@@ -2,15 +2,22 @@
 
 + git pull;mvn clean install package;java -jar target/quarkus-app/quarkus-run.jar
 
+## server invite link example
+
+https://discord.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot%20applications.commands&permissions=PERMISSIONS
+
 ## linux setup
 
 ### Debian/Ubuntu
+
 sudo apt-get install libopus0 libopus-dev libsodium23 libsodium-dev
 
 ### Fedora/RHEL
+
 sudo dnf install opus opus-devel libsodium libsodium-devel
 
 ### Arch
+
 sudo pacman -S opus libsodium
 
 ## links
