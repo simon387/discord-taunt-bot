@@ -40,7 +40,28 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>5.1.1</version>
+			<version>6.4.1</version>
+		</dependency>
+		<!-- protocollo DAVE (E2EE voice Discord, obbligatorio dal 01/03/2026) -->
+		<dependency>
+			<groupId>moe.kyokobot.libdave</groupId>
+			<artifactId>api</artifactId>
+			<version>ce725965e</version>
+		</dependency>
+		<dependency>
+			<groupId>moe.kyokobot.libdave</groupId>
+			<artifactId>adapter-jda</artifactId>
+			<version>ce725965e</version>
+		</dependency>
+		<dependency>
+			<groupId>moe.kyokobot.libdave</groupId>
+			<artifactId>impl-jni</artifactId>
+			<version>ce725965e</version>
+		</dependency>
+		<dependency>
+			<groupId>moe.kyokobot.libdave</groupId>
+			<artifactId>natives-win-x86-64</artifactId>
+			<version>ce725965e</version>
 		</dependency>
 		<!-- per gli stream audio -->
 		<dependency>
@@ -114,6 +135,19 @@
 	</build>
 
 	<repositories>
+		<repository>
+			<id>lavalink-snapshots</id>
+			<name>Lavalink Snapshots</name>
+			<url>https://maven.lavalink.dev/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</releases>
+		</repository>
 		<repository>
 			<id>dv8tion</id>
 			<name>m2-dv8tion</name>

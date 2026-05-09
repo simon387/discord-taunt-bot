@@ -65,14 +65,13 @@ public class DiscordTauntBotBaseLogger extends ListenerAdapter {
 
 			if ( event.getChannelJoined () != null ) {
 				Log.infof ( "Bot entered in channel: %s", event.getChannelJoined ().getName () );
-				// Qui puoi impostare il tuo AudioManager e Recorder
 				AudioManager audioManager = event.getGuild ().getAudioManager ();
 				audioManager.setReceivingHandler ( new AudioReceiveHandler ( audioRecorderRingBufferService ) );
-				audioManager.openAudioConnection ( event.getChannelJoined () );
+				// NON chiamare openAudioConnection qui: la connessione è già aperta (è per questo che l'evento è scattato)
 			}
 
 			if ( event.getChannelLeft () != null ) {
-				Log.infof ( "Bot left channel: ", event.getChannelLeft ().getName () );
+				Log.infof ( "Bot left channel: %s", event.getChannelLeft ().getName () );
 				// Qui puoi chiudere AudioManager o fermare la registrazione
 			}
 		}

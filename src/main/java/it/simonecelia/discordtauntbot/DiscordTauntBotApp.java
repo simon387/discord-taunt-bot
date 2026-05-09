@@ -7,8 +7,11 @@ import it.simonecelia.discordtauntbot.service.business.DiscordTauntBot;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import moe.kyokobot.libdave.NativeDaveFactory;
+import moe.kyokobot.libdave.jda.LDJDADaveSessionFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.BufferedReader;
@@ -39,6 +42,9 @@ public final class DiscordTauntBotApp {
 		var jdaBuilder = JDABuilder.createDefault ( appConfig.getDiscordBotToken () );
 		jdaBuilder.enableIntents ( GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_VOICE_STATES );
 		jdaBuilder.addEventListeners ( discordTauntBot );
+		// DAVE protocol (E2EE voice) - obbligatorio dal 01/03/2026
+		var daveSessionFactory = new LDJDADaveSessionFactory ( new NativeDaveFactory () );
+		jdaBuilder.setAudioModuleConfig ( new AudioModuleConfig ().withDaveSessionFactory ( daveSessionFactory ) );
 		var jda = jdaBuilder.build ();
 
 		jda.awaitReady (); // Blocking until JDA is ready

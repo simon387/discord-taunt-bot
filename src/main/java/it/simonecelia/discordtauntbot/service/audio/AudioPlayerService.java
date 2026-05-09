@@ -83,7 +83,13 @@ public class AudioPlayerService {
 		audioManager.setSendingHandler (
 						new AudioPlayerSendHandler ( musicManager.getPlayer () )
 		);
-		audioManager.openAudioConnection ( voiceChannel );
+		// Evita di riconnettersi se già nel canale corretto: in JDA 5.x richiamare
+		// openAudioConnection sullo stesso canale causa un reconnect che scatena
+		// GuildVoiceUpdateEvent → loop infinito
+		var connectedChannel = audioManager.getConnectedChannel ();
+		if ( connectedChannel == null || connectedChannel.getIdLong () != voiceChannel.getIdLong () ) {
+			audioManager.openAudioConnection ( voiceChannel );
+		}
 
 		playerManager.loadItem ( audioFile, new AudioLoadResultHandler () {
 
