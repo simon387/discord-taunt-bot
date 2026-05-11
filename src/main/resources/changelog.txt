@@ -1,3 +1,6 @@
+Version 1.6.31
+- attemped to fix audio play on linux
+
 Version 1.6.30
 - added ia files
 - fixed log in log out bug
