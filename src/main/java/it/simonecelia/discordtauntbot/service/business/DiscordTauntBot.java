@@ -30,11 +30,17 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 			return;
 		}
 		var message = event.getMessage ();
-		var content = message.getContentRaw ().trim ().toLowerCase ();
+		var rawContent = message.getContentRaw ().trim ();
+		var content = rawContent.toLowerCase ();
 		Log.infof ( "Got message from: %s, with Content: %s", event.getAuthor (), content );
 
 		switch ( content ) {
 		case String c when c.startsWith ( "/tts " ) -> ttsSender.sendTTS ( event, content );
+		case String c when c.startsWith ( "/yt " ) -> {
+			var url = rawContent.substring ( 4 ).trim (); // preso da rawContent, non da content!
+			Log.infof ( "YT test command invoked with url: %s", url );
+			audioPlayer.playAudio ( event, url, appConfig.isVerbose () );
+		}
 		case "/stop" -> audioPlayer.stopAudio ( event, appConfig.isVerbose () );
 		case "/tauntlist" -> textSender.sendTauntList ( event );
 		case "/links" -> textSender.sendLinks ( event );
@@ -55,7 +61,7 @@ public class DiscordTauntBot extends DiscordTauntBotBaseLogger {
 			}
 		}
 		case "/guide" -> textSender.sendCraftingGuide ( event );
-		default -> audioPlayer.playAudio ( event, content, appConfig.isVerbose () );//downloadService.attemptDownload ( content );
+		default -> audioPlayer.playAudio ( event, content, appConfig.isVerbose () );
 		}
 	}
 
