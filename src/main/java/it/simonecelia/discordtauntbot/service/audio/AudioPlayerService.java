@@ -145,9 +145,9 @@ public class AudioPlayerService {
 			@Override
 			public void loadFailed ( FriendlyException exception ) {
 				Log.errorf ( "Error loading audio: %s", exception.getMessage () );
-				event.getChannel ().sendMessage (
-								"Error loading audio: " + exception.getMessage ()
-				).queue ();
+//				event.getChannel ().sendMessage (
+//								"Error loading audio: " + exception.getMessage ()
+//				).queue ();
 			}
 		} );
 	}
